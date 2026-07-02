@@ -1,0 +1,192 @@
+{
+  "communities": {
+    "0": [
+      "builder",
+      "data",
+      "entity",
+      "entity_badge",
+      "entity_badge_badge",
+      "entity_emissionfactor",
+      "entity_emissionfactor_emissionfactor",
+      "long",
+      "noargsconstructor"
+    ],
+    "1": [
+      "gemini_ast_only",
+      "gemini_broad_architecture_review",
+      "gemini_broad_navigation",
+      "gemini_graph_report_md",
+      "gemini_graphify",
+      "gemini_graphify_out",
+      "gemini_knowledge_graph",
+      "gemini_update_command",
+      "gemini_wiki_index_md"
+    ],
+    "2": [
+      "allargsconstructor",
+      "double",
+      "entity_activitylog",
+      "entity_activitylog_activitylog",
+      "entity_goal",
+      "entity_goal_goal",
+      "localdate",
+      "table"
+    ],
+    "3": [
+      "gemini_codebase_questions",
+      "gemini_explain_command",
+      "gemini_focused_concepts",
+      "gemini_graph_json",
+      "gemini_path_command",
+      "gemini_query_command",
+      "gemini_relationships",
+      "gemini_scoped_subgraph"
+    ],
+    "4": [
+      "carbontracker_carbontrackerapplication",
+      "carbontracker_carbontrackerapplication_carbontrackerapplication",
+      "carbontracker_carbontrackerapplication_carbontrackerapplication_main",
+      "springbootapplication",
+      "string"
+    ],
+    "5": [
+      "carbontracker_carbontrackerapplicationtests",
+      "carbontracker_carbontrackerapplicationtests_carbontrackerapplicationtests",
+      "carbontracker_carbontrackerapplicationtests_carbontrackerapplicationtests_contextloads",
+      "springboottest",
+      "test"
+    ],
+    "6": [
+      "boolean",
+      "entity_user",
+      "entity_user_user",
+      "localdatetime"
+    ],
+    "7": [
+      "pkg_com_carbontracker_carbontracker"
+    ]
+  },
+  "cohesion": {
+    "0": 0.3333333333333333,
+    "1": 0.2222222222222222,
+    "2": 0.42857142857142855,
+    "3": 0.32142857142857145,
+    "4": 0.5,
+    "5": 0.6,
+    "6": 0.6666666666666666,
+    "7": 1.0
+  },
+  "gods": [
+    {
+      "id": "entity_activitylog_activitylog",
+      "label": "ActivityLog",
+      "degree": 11
+    },
+    {
+      "id": "entity_goal_goal",
+      "label": "Goal",
+      "degree": 11
+    },
+    {
+      "id": "entity_user_user",
+      "label": "User",
+      "degree": 11
+    },
+    {
+      "id": "entity_emissionfactor_emissionfactor",
+      "label": "EmissionFactor",
+      "degree": 10
+    },
+    {
+      "id": "entity_badge_badge",
+      "label": "Badge",
+      "degree": 9
+    },
+    {
+      "id": "gemini_graphify_out",
+      "label": "graphify-out/ directory",
+      "degree": 5
+    },
+    {
+      "id": "gemini_graph_json",
+      "label": "graph.json",
+      "degree": 4
+    },
+    {
+      "id": "carbontracker_carbontrackerapplication_carbontrackerapplication",
+      "label": "CarbonTrackerApplication",
+      "degree": 3
+    },
+    {
+      "id": "carbontracker_carbontrackerapplicationtests_carbontrackerapplicationtests",
+      "label": "CarbonTrackerApplicationTests",
+      "degree": 3
+    },
+    {
+      "id": "gemini_query_command",
+      "label": "graphify query command",
+      "degree": 3
+    }
+  ],
+  "surprises": [
+    {
+      "source": "ActivityLog",
+      "target": "String",
+      "source_files": [
+        "src/main/java/com/carbontracker/CarbonTracker/entity/ActivityLog.java",
+        ""
+      ],
+      "confidence": "EXTRACTED",
+      "relation": "references",
+      "note": "Bridges community 4 \u2192 community 2"
+    },
+    {
+      "source": "Badge",
+      "target": "String",
+      "source_files": [
+        "src/main/java/com/carbontracker/CarbonTracker/entity/Badge.java",
+        ""
+      ],
+      "confidence": "EXTRACTED",
+      "relation": "references",
+      "note": "Bridges community 4 \u2192 community 0"
+    },
+    {
+      "source": "User",
+      "target": "String",
+      "source_files": [
+        "src/main/java/com/carbontracker/CarbonTracker/entity/User.java",
+        ""
+      ],
+      "confidence": "EXTRACTED",
+      "relation": "references",
+      "note": "Bridges community 4 \u2192 community 6"
+    },
+    {
+      "source": "ActivityLog",
+      "target": "Builder",
+      "source_files": [
+        "src/main/java/com/carbontracker/CarbonTracker/entity/ActivityLog.java",
+        ""
+      ],
+      "confidence": "EXTRACTED",
+      "relation": "references",
+      "note": "Bridges community 2 \u2192 community 0"
+    },
+    {
+      "source": "User",
+      "target": "Data",
+      "source_files": [
+        "src/main/java/com/carbontracker/CarbonTracker/entity/User.java",
+        ""
+      ],
+      "confidence": "EXTRACTED",
+      "relation": "references",
+      "note": "Bridges community 0 \u2192 community 6"
+    }
+  ],
+  "tokens": {
+    "input": 977,
+    "output": 3615
+  }
+}
