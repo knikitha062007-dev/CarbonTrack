@@ -1,8 +1,14 @@
 package com.nikitha.carbontrack.entity;
 
 import jakarta.persistence.*;
+import lombok.*;
+
 import java.time.LocalDate;
 
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
 @Entity
 @Table(name = "activity_logs")
 public class ActivityLog {
@@ -11,29 +17,25 @@ public class ActivityLog {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "user_id", nullable = false)
-    private Long userId;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id", nullable = false)
+    private User user;
 
-    @Column(nullable = false)
+    @Column(nullable = false, length = 50)
     private String category;
 
-    @Column(name = "activity_type", nullable = false)
+    @Column(name = "activity_type", nullable = false, length = 100)
     private String activityType;
 
     @Column(nullable = false)
     private Double quantity;
 
-    @Column(nullable = false)
+    @Column(nullable = false, length = 20)
     private String unit;
 
-    @Column(name = "co2e_kg")
-    private Double co2eKg;
+    @Column(name = "co2_emission", nullable = false)
+    private Double co2Emission;
 
-    @Column(name = "log_date")
+    @Column(name = "log_date", nullable = false)
     private LocalDate logDate;
-
-    public ActivityLog() {
-    }
-
-    // Generate Getters and Setters using IntelliJ
 }

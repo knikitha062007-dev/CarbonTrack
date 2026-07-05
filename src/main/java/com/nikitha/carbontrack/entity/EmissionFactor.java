@@ -1,8 +1,12 @@
 package com.nikitha.carbontrack.entity;
 
 import jakarta.persistence.*;
-import java.time.LocalDate;
+import lombok.*;
 
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
 @Entity
 @Table(name = "emission_factors")
 public class EmissionFactor {
@@ -11,18 +15,15 @@ public class EmissionFactor {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "activity_type", nullable = false)
+    @Column(nullable = false, length = 50)
+    private String category;
+
+    @Column(name = "activity_type", nullable = false, length = 100)
     private String activityType;
 
-    @Column(nullable = false)
+    @Column(nullable = false, length = 20)
     private String unit;
 
-    @Column(name = "kg_co2e_per_unit", nullable = false)
-    private Double kgCo2ePerUnit;
-
-    @Column(nullable = false)
-    private String source;
-
-    @Column(name = "effective_date")
-    private LocalDate effectiveDate;
+    @Column(name = "emission_factor", nullable = false)
+    private Double emissionFactor;
 }

@@ -1,8 +1,14 @@
 package com.nikitha.carbontrack.entity;
 
 import jakarta.persistence.*;
+import lombok.*;
+
 import java.time.LocalDate;
 
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
 @Entity
 @Table(name = "goals")
 public class Goal {
@@ -11,18 +17,15 @@ public class Goal {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "user_id", nullable = false)
-    private Long userId;
+    @Column(name = "target_reduction", nullable = false)
+    private Double targetReduction;
 
-    @Column(name = "target_reduction_pct", nullable = false)
-    private Double targetReductionPct;
-
-    @Column(name = "period_days", nullable = false)
-    private Integer periodDays;
-
-    @Column(name = "start_date")
+    @Column(name = "start_date", nullable = false)
     private LocalDate startDate;
 
-    @Enumerated(EnumType.STRING)
-    private GoalStatus status;
+    @Column(name = "end_date", nullable = false)
+    private LocalDate endDate;
+
+    @Column(nullable = false)
+    private Boolean achieved;
 }
