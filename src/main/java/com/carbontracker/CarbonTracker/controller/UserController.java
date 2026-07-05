@@ -1,10 +1,10 @@
 package com.carbontracker.CarbonTracker.controller;
 
-import com.carbontracker.CarbonTracker.entity.User;
+import com.carbontracker.CarbonTracker.dto.ProfileResponse;
+import com.carbontracker.CarbonTracker.dto.UpdateProfileRequest;
 import com.carbontracker.CarbonTracker.service.UserService;
+import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @RestController
 @RequestMapping("/users")
@@ -16,13 +16,14 @@ public class UserController {
         this.userService = userService;
     }
 
-    @PostMapping
-    public User createUser(@RequestBody User user) {
-        return userService.saveUser(user);
+    @GetMapping("/{id}")
+    public ProfileResponse getProfile(@PathVariable Long id) {
+        return userService.getProfile(id);
     }
 
-    @GetMapping
-    public List<User> getAllUsers() {
-        return userService.getAllUsers();
+    @PutMapping("/{id}")
+    public ProfileResponse updateProfile(@PathVariable Long id,
+                                         @Valid @RequestBody UpdateProfileRequest request) {
+        return userService.updateProfile(id, request);
     }
 }
