@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Line, Bar, Doughnut } from "react-chartjs-2";
+import api from "../services/api";
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -128,6 +129,18 @@ function Dashboard() {
     "Fast fashion has a heavy footprint. Extending clothes lifespan by 9 months reduces carbon, waste, and water footprints by 20-30%.",
     "Unplugging chargers and devices when not in use stops 'phantom loads' and saves up to 50kg CO₂ annually.",
   ];
+  const fetchActivities = async () => {
+    try {
+      const response = await api.get("/activities");
+
+      console.log("Activities from backend:", response.data);
+
+      setActivities(response.data);
+
+    } catch (error) {
+      console.error(error);
+    }
+  };
 
   // Set greeting based on time of day
   useEffect(() => {
@@ -144,6 +157,10 @@ function Dashboard() {
     }, 10000);
     return () => clearInterval(interval);
   }, []);
+// Fetch activities from backend when dashboard loads
+useEffect(() => {
+  fetchActivities();
+}, []);
 
   // Display helpful toast message
   const triggerToast = (msg) => {
@@ -178,7 +195,7 @@ function Dashboard() {
     // Aggregate values from current interactive activities state
     activities.forEach((act) => {
       if (totals[act.type] !== undefined) {
-        totals[act.type] += act.value;
+        totals[act.type] += act.emission;
       }
     });
 
@@ -267,48 +284,70 @@ function Dashboard() {
   };
 
   // Handle Add Activity submit
-  const handleAddActivity = (e) => {
+  const handleAddActivity = async (e) => {
     e.preventDefault();
+
     const computedVal = calculateCarbon();
-    const detailText = getFormDetailText(computedVal);
 
-    let impact = "low";
-    if (computedVal > 5.0) impact = "high";
-    else if (computedVal > 1.5) impact = "moderate";
+    try {
 
-    const now = new Date();
-    const formattedDate = now.toISOString().split("T")[0];
-    const formattedTime = now.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+      const payload = {
+        activityType: activityForm.type.toUpperCase(),
+        quantity:
+          Number(activityForm.distance) ||
+          Number(activityForm.hours) ||
+          Number(activityForm.itemsCount) ||
+          1,
+        emission: computedVal,
+        unit:
+          activityForm.type === "Transport"
+            ? "km"
+            : activityForm.type === "Electricity"
+            ? "hours"
+            : activityForm.type === "Shopping"
+            ? "items"
+            : "meal",
+        subType:
+          activityForm.transportMode ||
+          activityForm.appliance ||
+          activityForm.mealType ||
+          activityForm.shoppingCat,
+      };
 
-    const newActivity = {
-      id: Date.now(),
-      type: activityForm.type,
-      detail: detailText,
-      value: computedVal,
-      unit: "kg CO₂e",
-      date: formattedDate,
-      time: formattedTime,
-      impact,
-    };
+      await api.post("/activities", payload);
 
-    setActivities([newActivity, ...activities]);
-    setIsModalOpen(false);
-    triggerToast(`Successfully added activity: +${computedVal} kg CO₂e`);
+      await fetchActivities();
 
-    // Reset Form
-    setActivityForm({
-      type: "Transport",
-      detail: "",
-      calcMode: "auto",
-      manualValue: "",
-      distance: "",
-      transportMode: "Petrol Car",
-      hours: "",
-      appliance: "Air Conditioner",
-      mealType: "Red Meat",
-      shoppingCat: "Clothing",
-      itemsCount: "1",
-    });
+      setIsModalOpen(false);
+
+      triggerToast(
+        `Activity added successfully! +${computedVal.toFixed(2)} kg CO₂e`
+      );
+
+      setActivityForm({
+        type: "Transport",
+        detail: "",
+        calcMode: "auto",
+        manualValue: "",
+        distance: "",
+        transportMode: "Petrol Car",
+        hours: "",
+        appliance: "Air Conditioner",
+        mealType: "Red Meat",
+        shoppingCat: "Clothing",
+        itemsCount: "1",
+      });
+
+    } catch (error) {
+
+      console.log(error);
+        console.log(error.response);
+        console.log(error.response?.data);
+
+        alert(JSON.stringify(error.response?.data || error.message));
+
+        triggerToast("Failed to save activity.");
+    }
   };
 
   // Delete activity handler
@@ -353,10 +392,10 @@ function Dashboard() {
 
     // Map current activities dates to days of week to add on top
     activities.forEach((act) => {
-      const actDate = new Date(act.date);
+      const actDate = new Date(new Date(act.createdAt).toLocaleDateString());
       const dayIndex = (actDate.getDay() + 6) % 7; // Mon is 0, Sun is 6
       if (dayIndex >= 0 && dayIndex < 7) {
-        baseEmissions[dayIndex] += act.value;
+        baseEmissions[dayIndex] += act.emission;
       }
     });
 
@@ -513,7 +552,7 @@ function Dashboard() {
 
   // Filter & Search activities logic
   const filteredActivities = activities.filter((act) => {
-    const matchesSearch = act.detail.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    const matchesSearch = act.subType.toLowerCase().includes(searchQuery.toLowerCase()) ||
                           act.type.toLowerCase().includes(searchQuery.toLowerCase());
     const matchesCategory = categoryFilter === "All" || act.type === categoryFilter;
     return matchesSearch && matchesCategory;
@@ -926,37 +965,72 @@ function Dashboard() {
                               className="cat-dot"
                               style={{
                                 background:
-                                  act.type === "Transport"
+                                  act.activityType === "TRANSPORT"
                                     ? "var(--color-transport)"
-                                    : act.type === "Electricity"
+                                    : act.activityType === "ELECTRICITY"
                                     ? "var(--color-electricity)"
-                                    : act.type === "Food"
+                                    : act.activityType === "FOOD"
                                     ? "var(--color-food)"
                                     : "var(--color-shopping)",
                               }}
                             ></span>
-                            <span>{act.type}</span>
-                          </div>
-                        </td>
-                        <td>{act.detail}</td>
-                        <td>
-                          <span className={`impact-badge ${act.impact}`}>
-                            {act.value} kg ({act.impact.toUpperCase()})
-                          </span>
-                        </td>
-                        <td>
-                          <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
-                            <FaClock style={{ color: "var(--text-muted)", fontSize: "12px" }} />
+
                             <span>
-                              {act.date} / {act.time}
+                              {act.activityType.charAt(0) +
+                                act.activityType.slice(1).toLowerCase()}
                             </span>
                           </div>
                         </td>
+
+                        <td>{act.subType}</td>
+
+                        <td>
+                          <span
+                            className={`impact-badge ${
+                              act.emission > 5
+                                ? "high"
+                                : act.emission > 2
+                                ? "moderate"
+                                : "low"
+                            }`}
+                          >
+                            {act.emission.toFixed(2)} kg CO₂e (
+                            {act.emission > 5
+                              ? "HIGH"
+                              : act.emission > 2
+                              ? "MODERATE"
+                              : "LOW"}
+                            )
+                          </span>
+                        </td>
+
+                        <td>
+                          <div
+                            style={{
+                              display: "flex",
+                              alignItems: "center",
+                              gap: "6px",
+                            }}
+                          >
+                            <FaClock
+                              style={{
+                                color: "var(--text-muted)",
+                                fontSize: "12px",
+                              }}
+                            />
+
+                            <span>
+                              {new Date(act.createdAt).toLocaleDateString()} /{" "}
+                              {new Date(act.createdAt).toLocaleTimeString()}
+                            </span>
+                          </div>
+                        </td>
+
                         <td>
                           <button
                             className="action-icon-btn delete"
-                            title="Delete Log Entry"
-                            onClick={() => handleDeleteActivity(act.id, act.value)}
+                            title="Delete Activity"
+                            onClick={() => handleDeleteActivity(act.id)}
                           >
                             <FaTrash />
                           </button>
@@ -1083,37 +1157,37 @@ function Dashboard() {
                   className="cat-dot"
                   style={{
                   background:
-                  act.type==="Transport"
+                  act.activityType==="TRANSPORT"
                   ? "var(--color-transport)"
-                  : act.type==="Electricity"
+                  : act.activityType==="ELECTRICITY"
                   ? "var(--color-electricity)"
-                  : act.type==="Food"
+                  : act.activityType==="FOOD"
                   ? "var(--color-food)"
                   : "var(--color-shopping)"
                   }}
                   ></span>
 
-                  {act.type}
+                  {act.activityType}
 
                   </div>
 
                   </td>
 
-                  <td>{act.detail}</td>
+                  <td>{act.subType}</td>
 
                   <td>
 
-                  {act.value} {act.unit}
+                  {act.emission} {act.unit}
 
                   </td>
 
                   <td>
 
-                  {act.date}
+                  {new Date(act.createdAt).toLocaleDateString()}
 
                   <br/>
 
-                  {act.time}
+                  {new Date(act.createdAt).toLocaleTimeString()}
 
                   </td>
 

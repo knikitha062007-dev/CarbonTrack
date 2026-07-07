@@ -3,6 +3,7 @@ margin:0;
 padding:0;
 box-sizing:border-box;
 font-family:Inter,sans-serif;
+font-family: 'Poppins', sans-serif;
 }
 
 body{
@@ -354,4 +355,30 @@ transform:scale(1.03);
 
 box-shadow:0 0 20px #33FFC7;
 
+}
+.dashboard-greeting{
+    font-size: 16px;
+    font-weight: 500;
+    color:#5c6b60;
+    letter-spacing:0.4px;
+}
+
+.dashboard-name{
+    font-size:34px;
+    font-weight:700;
+    color:#173d2b;
+    line-height:1.1;
+}
+.card-title{
+    font-size:20px;
+    font-weight:600;
+}
+.card-label{
+    font-size:14px;
+    color:#6c757d;
+}
+button{
+    font-size:15px;
+    font-weight:600;
+    letter-spacing:0.3px;
 }

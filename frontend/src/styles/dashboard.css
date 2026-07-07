@@ -1277,3 +1277,30 @@
     gap: 0;
   }
 }
+.modal-content select{
+    width:100%;
+    padding:14px 16px;
+    background:#151C2F;
+    color:#fff;
+    border:1px solid rgba(255,255,255,0.12);
+    border-radius:12px;
+    font-size:15px;
+    font-family:'Inter',sans-serif;
+    outline:none;
+    cursor:pointer;
+    transition:.3s;
+}
+
+.modal-content select:hover{
+    border-color:#33FFC7;
+}
+
+.modal-content select:focus{
+    border-color:#33FFC7;
+    box-shadow:0 0 12px rgba(51,255,199,.25);
+}
+.modal-content option{
+    background:#151C2F;
+    color:#fff;
+    font-size:15px;
+}
