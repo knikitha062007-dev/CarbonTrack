@@ -45,14 +45,16 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         String token = authHeader.substring(7);
 
         String email = jwtService.extractEmail(token);
+        System.out.println("JWT EMAIL = " + email);
 
         if (email != null &&
                 SecurityContextHolder.getContext().getAuthentication() == null) {
 
             User user = userRepository.findByEmail(email).orElse(null);
+            System.out.println("USER FOUND = " + user);
 
             if (user != null && jwtService.isTokenValid(token, user.getEmail())) {
-
+                System.out.println("JWT VALID");
                 UsernamePasswordAuthenticationToken authentication =
                         new UsernamePasswordAuthenticationToken(
                                 user,
@@ -66,6 +68,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
                 SecurityContextHolder.getContext()
                         .setAuthentication(authentication);
+                System.out.println("AUTHENTICATION SET");
             }
         }
 

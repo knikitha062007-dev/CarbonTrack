@@ -58,12 +58,13 @@ ChartJS.register(
 
 function Dashboard() {
   const navigate = useNavigate();
+  const [dashboard, setDashboard] = useState(null);
 
   // Load User Info from localStorage with safe fallbacks
   const [userInfo, setUserInfo] = useState({
     fullName: localStorage.getItem("fullName") || "Eco Warrior",
     email: localStorage.getItem("email") || "warrior@carbontracker.com",
-    goal: parseFloat(localStorage.getItem("co2Goal")) || 500.0,
+    goal: parseFloat(localStorage.getItem("co2Goal")) || 500,
   });
 
   // Current active tab state: 'dashboard', 'activities', 'reports', 'profile'
@@ -129,18 +130,6 @@ function Dashboard() {
     "Fast fashion has a heavy footprint. Extending clothes lifespan by 9 months reduces carbon, waste, and water footprints by 20-30%.",
     "Unplugging chargers and devices when not in use stops 'phantom loads' and saves up to 50kg CO₂ annually.",
   ];
-  const fetchActivities = async () => {
-    try {
-      const response = await api.get("/activities");
-
-      console.log("Activities from backend:", response.data);
-
-      setActivities(response.data);
-
-    } catch (error) {
-      console.error(error);
-    }
-  };
 
   // Set greeting based on time of day
   useEffect(() => {
@@ -158,8 +147,35 @@ function Dashboard() {
     return () => clearInterval(interval);
   }, []);
 // Fetch activities from backend when dashboard loads
+
+const fetchActivities = async () => {
+  try {
+    const response = await api.get("/activities");
+
+    console.log("Activities from backend:", response.data);
+
+    setActivities(response.data);
+
+  } catch (error) {
+    console.error(error);
+  }
+};
+
+const fetchDashboard = async () => {
+  try {
+    const response = await api.get("/dashboard");
+
+    console.log("Dashboard =", response.data);
+
+    setDashboard(response.data);
+
+  } catch (error) {
+    console.error(error);
+  }
+};
 useEffect(() => {
   fetchActivities();
+  fetchDashboard();
 }, []);
 
   // Display helpful toast message
@@ -184,28 +200,21 @@ useEffect(() => {
   };
 
   // Base emissions (historical baselines) + calculated from active activities list
-  const getCategoryStats = () => {
-    const totals = {
-      Transport: 42.5,
-      Electricity: 84.2,
-      Food: 31.8,
-      Shopping: 25.5,
-    };
-
-    // Aggregate values from current interactive activities state
-    activities.forEach((act) => {
-      if (totals[act.type] !== undefined) {
-        totals[act.type] += act.emission;
-      }
-    });
-
-    return totals;
+  const catStats = {
+    Transport: dashboard?.transportEmission || 0,
+    Electricity: dashboard?.electricityEmission || 0,
+    Food: dashboard?.foodEmission || 0,
+    Shopping: dashboard?.shoppingEmission || 0,
   };
 
-  const catStats = getCategoryStats();
-  const totalEmissions = parseFloat(
-    (catStats.Transport + catStats.Electricity + catStats.Food + catStats.Shopping).toFixed(1)
-  );
+  const totalEmissions = dashboard?.totalEmission || 0;
+
+  const goal = dashboard?.goal || userInfo.goal || 500;
+
+  const goalPercentage = dashboard?.goalPercentage || 0;
+  const progressPercent = goalPercentage;
+
+  const isOverGoal = progressPercent >= 100;
 
   // Smart calculations for adding an activity
   const calculateCarbon = () => {
@@ -302,20 +311,24 @@ useEffect(() => {
           activityForm.type === "Transport"
             ? "km"
             : activityForm.type === "Electricity"
-            ? "kWh"
+            ? "hours"
             : activityForm.type === "Shopping"
             ? "item"
             : "meal",
         subType:
-          activityForm.transportMode ||
-          activityForm.appliance ||
-          activityForm.mealType ||
-          activityForm.shoppingCat,
+          activityForm.type === "Transport"
+            ? activityForm.transportMode
+            : activityForm.type === "Electricity"
+            ? activityForm.appliance
+            : activityForm.type === "Food"
+            ? activityForm.mealType
+            : activityForm.shoppingCat,
       };
-
+      console.log("PAYLOAD =", payload);
       await api.post("/activities", payload);
 
       await fetchActivities();
+      await fetchDashboard();
 
       setIsModalOpen(false);
 
@@ -361,7 +374,7 @@ useEffect(() => {
     setUserInfo({
       fullName: profileForm.fullName,
       email: profileForm.email,
-      goal: parseFloat(profileForm.goal) || 500.0,
+      goal: parseFloat(profileForm.goal) || 500,
     });
     localStorage.setItem("fullName", profileForm.fullName);
     localStorage.setItem("email", profileForm.email);
@@ -379,15 +392,13 @@ useEffect(() => {
     }, 2500);
   };
 
-  // Progress calculations
-  const progressPercent = Math.min(Math.round((totalEmissions / userInfo.goal) * 100), 100);
-  const isOverGoal = totalEmissions > userInfo.goal;
+
 
   // Chart 1: Weekly emissions summary (Area chart with smooth spline)
   // Let's dynamically map activities to standard days of week
   const getWeeklyData = () => {
     const days = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
-    const baseEmissions = [25.4, 38.6, 18.2, 32.4, 21.1, 14.5, 29.8]; // baselines
+    const baseEmissions = [0, 0, 0, 0, 0, 0, 0]; // baselines
 
     // Map current activities dates to days of week to add on top
     activities.forEach((act) => {
@@ -572,7 +583,7 @@ useEffect(() => {
       desc: "Log 3 or more low-impact Electricity activities.",
       unlocked:
       activities.length>0 &&
-      activities.filter((a) => a.type === "Electricity" && a.value < 1.0).length >= 2,
+      activities.filter((a) => a.activityType === "Electricity" && a.emission < 1.0).length >= 2,
       icon: "☀️",
     },
     {
@@ -581,7 +592,7 @@ useEffect(() => {
       desc: "Swap car commutes with a zero-emission transport activity.",
       unlocked:
       activities.length>0 &&
-      activities.some((a) => a.type === "Transport" && a.value === 0.0),
+      activities.some((a) => a.activityType === "Transport" && a.emission === 0.0),
       icon: "🚲",
     },
     {
@@ -590,7 +601,7 @@ useEffect(() => {
       desc: "Log at least two organic or vegan meals.",
       unlocked:
       activities.length>0 &&
-      activities.filter((a) => a.type === "Food" && a.detail.toLowerCase().includes("vegan")).length >= 1,
+      activities.filter((a) => a.activityType === "Food" && a.detail.toLowerCase().includes("vegan")).length >= 1,
       icon: "🌱",
     },
   ];
@@ -756,23 +767,31 @@ useEffect(() => {
                   </div>
                 </div>
                 <div className="emission-display">
-                  <span className="emission-value">{totalEmissions}</span>
+                  <span className="emission-value">
+                    {dashboard ? dashboard.totalEmission.toFixed(2) : "0.00"}
+                  </span>
                   <span className="emission-unit">kg CO₂e Total</span>
                 </div>
                 <div className="progress-section">
                   <div className="progress-header">
                     <span>Monthly Target Budget</span>
-                    <span>{progressPercent}% Used</span>
+                   <span>
+                     {dashboard ? dashboard.goalPercentage.toFixed(1) : "0"}% Used
+                   </span>
                   </div>
                   <div className="progress-bar-container">
                     <div
                       className={`progress-bar-fill ${isOverGoal ? "warning-fill" : ""}`}
-                      style={{ width: `${progressPercent}%` }}
+                     style={{
+                       width: `${dashboard ? dashboard.goalPercentage : 0}%`
+                     }}
                     ></div>
                   </div>
                   <div className="progress-header" style={{ marginTop: "8px", fontSize: "11px" }}>
                     <span>0 kg CO₂</span>
-                    <span>Target: {userInfo.goal} kg CO₂</span>
+                    <span>
+                      Target: {dashboard ? dashboard.goal : 500} kg CO₂
+                    </span>
                   </div>
                 </div>
               </div>
@@ -790,7 +809,7 @@ useEffect(() => {
                 </div>
                 <div className="stat-value">{catStats.Transport.toFixed(1)} kg</div>
                 <div className="stat-trend decrease">
-                  <span>↓ 12.4% from last week</span>
+                  <span>Based on your latest activity</span>
                 </div>
               </div>
 
@@ -804,7 +823,7 @@ useEffect(() => {
                 </div>
                 <div className="stat-value">{catStats.Electricity.toFixed(1)} kg</div>
                 <div className="stat-trend increase">
-                  <span>↑ 3.1% from last week</span>
+                  <span>Based on your latest activity</span>
                 </div>
               </div>
 
@@ -818,7 +837,7 @@ useEffect(() => {
                 </div>
                 <div className="stat-value">{catStats.Food.toFixed(1)} kg</div>
                 <div className="stat-trend decrease">
-                  <span>↓ 24.0% from last week</span>
+                  <span>Based on your latest activity</span>
                 </div>
               </div>
 
@@ -832,7 +851,7 @@ useEffect(() => {
                 </div>
                 <div className="stat-value">{catStats.Shopping.toFixed(1)} kg</div>
                 <div className="stat-trend decrease">
-                  <span>↓ 5.5% from last week</span>
+                  <span>Based on your latest activity</span>
                 </div>
               </div>
             </div>
@@ -1176,7 +1195,7 @@ useEffect(() => {
 
                   <td>
 
-                  {act.emission} {act.unit}
+                 {act.emission ? act.emission.toFixed(2) : "0.00"} kg CO₂e
 
                   </td>
 

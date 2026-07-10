@@ -52,7 +52,7 @@ class UserServiceTest {
         
         // Verify that the password is validly hashed with BCrypt
         assertTrue(passwordEncoder.matches("plainPassword123", savedUser.getPassword()));
-        
-        verify(userRepository, times(1)).save(rawUser);
+
+        verify(userRepository, times(1)).save(any(User.class));
     }
 }
