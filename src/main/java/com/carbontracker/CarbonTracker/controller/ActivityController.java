@@ -40,6 +40,15 @@ public class ActivityController {
     ) {
         activityService.deleteActivity(id, user);
     }
+    @PutMapping("/{id}")
+    public Activity updateActivity(
+            @PathVariable Long id,
+            @Valid @RequestBody Activity activity,
+            @AuthenticationPrincipal User user
+    ) {
+        return activityService.updateActivity(id, activity, user);
+    }
+
     @GetMapping("/test")
     public String test(@AuthenticationPrincipal User user) {
         if (user == null) {

@@ -48,8 +48,42 @@ public class ActivityServiceImpl implements ActivityService {
         Activity activity = activityRepository.findById(id)
                 .orElseThrow();
 
-        if(activity.getUser().getId().equals(user.getId())){
+        if (activity.getUser().getId().equals(user.getId())) {
             activityRepository.delete(activity);
         }
     }
-}
+        @Override
+        public Activity updateActivity(Long id, Activity activity, User user) {
+
+            Activity existing = activityRepository.findById(id)
+                    .orElseThrow();
+
+            if (!existing.getUser().getId().equals(user.getId())) {
+                throw new RuntimeException("Unauthorized");
+            }
+
+            existing.setActivityType(activity.getActivityType());
+            existing.setSubType(activity.getSubType());
+            existing.setQuantity(activity.getQuantity());
+            existing.setUnit(activity.getUnit());
+
+            System.out.println("Category = " + activity.getActivityType().name());
+            System.out.println("Subtype = " + activity.getSubType());
+            System.out.println("Unit = " + activity.getUnit());
+            System.out.println("Quantity = " + activity.getQuantity());
+            System.out.println("Category = " + activity.getActivityType());
+            System.out.println("Subtype = " + activity.getSubType());
+            System.out.println("Unit = " + activity.getUnit());
+            System.out.println("Quantity = " + activity.getQuantity());
+            EmissionFactor factor = emissionFactorRepository
+                    .findByCategoryAndActivityTypeAndUnit(
+                            activity.getActivityType().name(),
+                            activity.getSubType(),
+                            activity.getUnit())
+                    .orElseThrow(() -> new RuntimeException("Emission factor not found"));
+
+            existing.setEmission(activity.getQuantity() * factor.getEmissionFactor());
+
+            return activityRepository.save(existing);
+        }
+    }
