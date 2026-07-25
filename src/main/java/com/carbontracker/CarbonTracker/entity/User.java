@@ -36,6 +36,9 @@ public class User implements UserDetails {
     @Column(name = "goal_visibility")
     private Boolean goalVisibility;
 
+    @Column(name = "co2_goal")
+    private Double co2Goal;
+
     @Column(name = "created_at", nullable = false)
     private LocalDateTime createdAt;
 

@@ -1,9 +1,11 @@
 package com.carbontracker.CarbonTracker.controller;
 
+import com.carbontracker.CarbonTracker.dto.ActivityRequest;
 import com.carbontracker.CarbonTracker.entity.Activity;
 import com.carbontracker.CarbonTracker.entity.User;
 import com.carbontracker.CarbonTracker.service.ActivityService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import jakarta.validation.Valid;
@@ -34,11 +36,13 @@ public class ActivityController {
     }
 
     @DeleteMapping("/{id}")
-    public void deleteActivity(
+    public ResponseEntity<?> deleteActivity(
             @PathVariable Long id,
-            @AuthenticationPrincipal User user
-    ) {
+            @AuthenticationPrincipal User user) {
+
         activityService.deleteActivity(id, user);
+
+        return ResponseEntity.ok("Activity deleted");
     }
     @GetMapping("/test")
     public String test(@AuthenticationPrincipal User user) {
@@ -46,5 +50,15 @@ public class ActivityController {
             return "User is NULL";
         }
         return "Logged in as: " + user.getEmail();
+    }
+    @PutMapping("/{id}")
+    public ResponseEntity<?> updateActivity(
+            @PathVariable Long id,
+            @RequestBody ActivityRequest request,
+            @AuthenticationPrincipal User user) {
+
+        Activity activity = activityService.updateActivity(id, request, user);
+
+        return ResponseEntity.ok(activity);
     }
 }

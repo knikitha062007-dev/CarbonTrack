@@ -16,4 +16,6 @@ public class UpdateProfileRequest {
     private String preferredUnit;
 
     private Boolean goalVisibility;
+
+    private Double co2Goal;
 }

@@ -9,8 +9,7 @@ import lombok.Data;
 @Data
 public class ActivityRequest {
 
-    @NotNull
-    private Long userId;
+
 
     @NotNull
     private ActivityType activityType;

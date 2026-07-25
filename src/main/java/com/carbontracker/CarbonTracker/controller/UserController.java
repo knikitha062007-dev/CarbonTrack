@@ -1,5 +1,6 @@
 package com.carbontracker.CarbonTracker.controller;
 
+import com.carbontracker.CarbonTracker.dto.GoalProgressResponse;
 import com.carbontracker.CarbonTracker.dto.ProfileResponse;
 import com.carbontracker.CarbonTracker.dto.UpdateProfileRequest;
 import com.carbontracker.CarbonTracker.service.UserService;
@@ -10,6 +11,7 @@ import com.carbontracker.CarbonTracker.entity.User;
 
 @RestController
 @RequestMapping("/users")
+
 public class UserController {
 
     private final UserService userService;
@@ -32,4 +34,29 @@ public class UserController {
     ) {
         return userService.updateProfile(user, request);
     }
+    @GetMapping("/count")
+    public java.util.Map<String, Long> getUserCount() {
+
+        return java.util.Map.of(
+                "count",
+                userService.getUserCount()
+        );
+    }
+    @GetMapping("/activity-count")
+    public java.util.Map<String, Long> getActivityCount() {
+
+        return java.util.Map.of(
+                "count",
+                userService.getActivityCount()
+        );
+
+
+    }
+    @GetMapping("/goal-progress")
+    public GoalProgressResponse getGoalProgress(
+            @AuthenticationPrincipal User user) {
+
+        return userService.getGoalProgress(user);
+    }
+
 }

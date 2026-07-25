@@ -5,6 +5,8 @@ import Login from "./pages/Login";
 import Register from "./pages/Register";
 import Dashboard from "./pages/Dashboard";
 import OAuthSuccess from "./pages/OAuthSuccess";
+import EcoCoach from "./pages/EcoCoach";
+import Community from "./pages/Community";
 
 function App() {
 
@@ -22,6 +24,9 @@ function App() {
 
       <Route path="/oauth-success" element={<OAuthSuccess />} />
 
+      <Route path="/eco-coach" element={<EcoCoach />} />
+
+      <Route path="/community" element={<Community />} />
     </Routes>
 
   );
