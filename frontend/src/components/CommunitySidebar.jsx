@@ -12,7 +12,7 @@ function CommunitySidebar({ sidebarData, onUserClick }) {
       <div className="sidebar-widget-card">
         <h3>
           <FaTrophy style={{ color: "#fbbf24" }} />
-          <span>Top Contributors</span>
+          <span>Top 50 Contributors</span>
         </h3>
         <div className="widget-item-list">
           {topContributors.length === 0 ? (

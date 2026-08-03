@@ -18,6 +18,8 @@
     "chart.js": "^4.5.1",
     "framer-motion": "^12.42.2",
     "gsap": "^3.15.0",
+    "html2canvas": "^1.4.1",
+    "jspdf": "^4.2.1",
     "lottie-react": "^2.4.1",
     "react": "^19.2.7",
     "react-chartjs-2": "^5.3.1",
@@ -26,8 +28,7 @@
     "react-router-dom": "^7.18.1",
     "react-tsparticles": "^2.12.2",
     "recharts": "^3.9.2",
-    "three": "^0.185.1",
-    "tsparticles": "^4.3.1"
+    "three": "^0.185.1"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",

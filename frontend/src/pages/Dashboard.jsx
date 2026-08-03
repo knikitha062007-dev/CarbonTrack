@@ -2,6 +2,8 @@ import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import { DotLottieReact } from "@lottiefiles/dotlottie-react";
+import ReportCenter from "../components/ReportCenter";
+import Certificate from "./Certificate";
 
 import api from "../services/api";
 import { FaPen } from "react-icons/fa";
@@ -63,6 +65,10 @@ const [userCount, setUserCount] = useState(0);
   });
 
   const [leaderboard, setLeaderboard] = useState([]);
+  const getAnonymousName = (rank) => {
+    return `ECO-${String(rank).padStart(4, "0")}`;
+  };
+  const [search, setSearch] = useState("");
   const [isLeaderboardLoading, setIsLeaderboardLoading] = useState(false);
 
   const [theme, setTheme] = useState(localStorage.getItem("theme") || "dark");
@@ -128,6 +134,7 @@ const [userCount, setUserCount] = useState(0);
     fullName: userInfo.fullName,
     email: userInfo.email,
     goal: userInfo.goal,
+    showName:false,
   });
 
   // Feedback notifications
@@ -135,6 +142,10 @@ const [userCount, setUserCount] = useState(0);
 
   // Simulated reports loading state
   const [isExporting, setIsExporting] = useState(false);
+  const [fromDate, setFromDate] = useState("2026-08-01");
+  const [toDate, setToDate] = useState("2026-08-31");
+  const [email, setEmail] = useState(userInfo.email || "");
+  const [reportLoading, setReportLoading] = useState(false);
 
   // List of professional eco tips
   const ecoTips = [
@@ -519,9 +530,9 @@ useEffect(() => {
         email: profileForm.email,
         preferredUnit: "kg",
         goalVisibility: true,
-        co2Goal: parseFloat(profileForm.goal)
+        co2Goal: parseFloat(profileForm.goal),
+        showNameOnLeaderboard: profileForm.showName
       });
-
       setUserInfo({
         fullName: response.data.fullName,
         email: response.data.email,
@@ -551,6 +562,17 @@ useEffect(() => {
       setIsExporting(false);
       triggerToast(`Successfully downloaded: CarbonTracker_Report_${format.toUpperCase()}.zip`);
     }, 2500);
+  };
+  const downloadPdf = async () => {
+    // PDF code
+  };
+
+  const downloadExcel = async () => {
+    // Excel code
+  };
+
+  const sendEmail = async () => {
+    // Email code
   };
 
 
@@ -1128,11 +1150,25 @@ const pieChartData = [
 
         <ul className="sidebar-menu">
           <li
-            className={`sidebar-item ${activeTab === "dashboard" ? "active" : ""}`}
-            onClick={() => setActiveTab("dashboard")}
+              className={`sidebar-item ${activeTab === "dashboard" ? "active" : ""}`}
+              onClick={() => setActiveTab("dashboard")}
           >
             <FaChartLine className="sidebar-item-icon" />
             <span className="sidebar-item-text">Dashboard</span>
+          </li>
+
+          <li
+              className={`sidebar-item ${activeTab === "reportCenter" ? "active" : ""}`}
+              onClick={() => setActiveTab("reportCenter")}
+          >
+            <FaChartBar className="sidebar-item-icon" />
+            <span className="sidebar-item-text">Reports Center</span>
+          </li>
+          <li
+              className={`sidebar-item ${activeTab === "certificate" ? "active" : ""}`}
+              onClick={() => setActiveTab("certificate")}
+          >
+            <span className="sidebar-item-text">🏆 Certificate</span>
           </li>
           <li
             className={`sidebar-item ${activeTab === "activities" ? "active" : ""}`}
@@ -1171,6 +1207,7 @@ const pieChartData = [
                 fullName: userInfo.fullName,
                 email: userInfo.email,
                 goal: userInfo.goal,
+                showName: userInfo.showName ?? false,
               });
               setActiveTab("profile");
             }}
@@ -1344,6 +1381,66 @@ const pieChartData = [
                 <div className="stat-trend decrease">
                   <span>Based on your latest activity</span>
                 </div>
+              </div>
+            </div>
+            <div className="glass-card">
+              <div style={{ padding: "25px" }}>
+
+                <h3 style={{ marginBottom: "20px" }}>
+                  🎯 Goal Progress
+                </h3>
+
+                <p>
+                  <strong>Goal :</strong> {goal} kg CO₂
+                </p>
+
+                <p>
+                  <strong>Current Emission :</strong>{" "}
+                  {totalEmissions.toFixed(2)} kg CO₂
+                </p>
+
+                <p>
+                  <strong>Remaining :</strong>{" "}
+                  {(goal - totalEmissions).toFixed(2)} kg CO₂
+                </p>
+
+                <p>
+                  <strong>Progress :</strong>{" "}
+                  {progressPercent.toFixed(1)}%
+                </p>
+
+                <div
+                    style={{
+                      width: "100%",
+                      height: "15px",
+                      background: "#ddd",
+                      borderRadius: "10px",
+                      overflow: "hidden",
+                      marginTop: "15px"
+                    }}
+                >
+                  <div
+                      style={{
+                        width: `${progressPercent}%`,
+                        height: "100%",
+                        background:
+                            progressPercent < 50
+                                ? "green"
+                                : progressPercent < 80
+                                    ? "orange"
+                                    : "red"
+                      }}
+                  ></div>
+                </div>
+
+                <p style={{ marginTop: "15px" }}>
+                  {progressPercent < 50
+                      ? "✅ Excellent! You are within your carbon goal."
+                      : progressPercent < 80
+                          ? "⚠️ Keep going! You are approaching your goal."
+                          : "🚨 Warning! You are close to exceeding your goal."}
+                </p>
+
               </div>
             </div>
                   {/* ================= AI Assistant Card ================= */}
@@ -1981,10 +2078,122 @@ const pieChartData = [
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.4, delay: 0.2 }}
             >
+              <h2
+                  style={{
+                    textAlign: "center",
+                    color: "#FFD700",
+                    fontSize: "28px",
+                    fontWeight: "bold",
+                    marginBottom: "25px",
+                    textTransform: "uppercase",
+                    letterSpacing: "2px",
+                  }}
+              >
+                🏆 Top 3 Eco Champions 🏆
+              </h2>
+
+              <div
+                  style={{
+                    display: "flex",
+                    flexDirection: "column",
+                    alignItems: "center",
+                    gap: "20px",
+                    marginBottom: "40px",
+                  }}
+              >
+
+                {/* Rank 1 */}
+                <div
+                    style={{
+                      width: "320px",
+                      background: "linear-gradient(135deg,#FFD700,#F59E0B)",
+                      color: "#111827",
+                      borderRadius: "22px",
+                      padding: "30px",
+                      textAlign: "center",
+                      boxShadow: "0 12px 25px rgba(255,215,0,0.5)",
+                    }}
+                >
+                  <h1 style={{ fontSize: "60px" }}>🥇</h1>
+                  <h2>Rank #1</h2>
+                  <p>Eco Champion</p>
+                  <h2>ECO-0001</h2>
+                  <p>{leaderboard[0]?.ecoPoints || 0} Eco Points</p>
+                </div>
+
+                <div
+                    style={{
+                      display: "flex",
+                      justifyContent: "center",
+                      gap: "20px",
+                      width: "100%",
+                    }}
+                >
+
+                  {/* Rank 2 */}
+                  <div
+                      style={{
+                        width: "250px",
+                        background: "linear-gradient(135deg,#D1D5DB,#9CA3AF)",
+                        color: "#111827",
+                        borderRadius: "20px",
+                        padding: "25px",
+                        textAlign: "center",
+                        border: "2px solid silver",
+                      }}
+                  >
+                    <h1 style={{ fontSize: "50px" }}>🥈</h1>
+                    <h2>Rank #2</h2>
+                    <p>Eco Leader</p>
+                    <h3>ECO-0002</h3>
+                    <p>{leaderboard[1]?.ecoPoints || 0} Eco Points</p>
+                  </div>
+
+                  {/* Rank 3 */}
+                  <div
+                      style={{
+                        width: "250px",
+                        background: "linear-gradient(135deg,#CD7F32,#8B4513)",
+                        color: "white",
+                        borderRadius: "20px",
+                        padding: "25px",
+                        textAlign: "center",
+                        border: "2px solid #CD7F32",
+                      }}
+                  >
+                    <h1 style={{ fontSize: "50px" }}>🥉</h1>
+                    <h2>Rank #3</h2>
+                    <p>Eco Warrior</p>
+                    <h3>ECO-0003</h3>
+                    <p>{leaderboard[2]?.ecoPoints || 0} Eco Points</p>
+                  </div>
+                </div>   {/* Closes Rank 2 & Rank 3 row */}
+
+              </div>   {/* Closes Top 3 Eco Champions section */}
+
+
+
+
               <h3 style={{ fontSize: "18px", fontWeight: "700", marginBottom: "20px", display: "flex", alignItems: "center", gap: "10px" }}>
                 <span>🏆 Community Leaderboard</span>
                 {isLeaderboardLoading && <span style={{ fontSize: "12px", color: "var(--text-muted)", fontWeight: "normal" }}>(Updating...)</span>}
               </h3>
+              <input
+                  type="text"
+                  placeholder="Search user..."
+                  value={search}
+                  onChange={(e) => setSearch(e.target.value)}
+                  style={{
+                    width: "100%",
+                    padding: "10px",
+                    margin: "15px 0",
+                    borderRadius: "8px",
+                    border: "1px solid #444",
+                    background: "#1f2937",
+                    color: "white",
+                    outline: "none"
+                  }}
+              />
               
               <div style={{ overflowX: "auto" }}>
                 <table style={{ width: "100%", borderCollapse: "collapse", textAlign: "left" }}>
@@ -1992,57 +2201,118 @@ const pieChartData = [
                     <tr style={{ borderBottom: "1px solid var(--card-border)", color: "var(--text-muted)", fontSize: "13px" }}>
                       <th style={{ padding: "12px 16px", fontWeight: "600" }}>Rank</th>
                       <th style={{ padding: "12px 16px", fontWeight: "600" }}>User</th>
+                      <th style={{ padding: "12px 16px", fontWeight: "600", textAlign: "center" }}>Badge</th>
+                      <th style={{ padding: "12px 16px", fontWeight: "600" }}>Eco Rank</th>
                       <th style={{ padding: "12px 16px", fontWeight: "600", textAlign: "right" }}>Total CO₂</th>
                     </tr>
                   </thead>
                   <tbody>
-                    {leaderboard.map((item, index) => {
+                  {leaderboard
+                      .filter(item =>
+                          item.name.toLowerCase().includes(search.toLowerCase())
+                      )
+                      .map((item, index) => {
                       const rank = index + 1;
+                      let badge = "🌱";
+
+                      if (rank === 1) badge = "🥇";
+                      else if (rank === 2) badge = "🥈";
+                      else if (rank === 3) badge = "🥉";
+
+                      let ecoRank = "Beginner";
+
+                      if (rank === 1) ecoRank = "Eco Champion";
+                      else if (rank <= 3) ecoRank = "Eco Leader";
+                      else if (rank <= 10) ecoRank = "Eco Warrior";
                       const isMe = item.id === myUserId || item.name === userInfo.fullName;
-                      
-                      let medal = "";
-                      if (rank === 1) medal = "🥇";
-                      else if (rank === 2) medal = "🥈";
-                      else if (rank === 3) medal = "🥉";
+                        const displayName = item.name;
+
 
                       return (
                         <tr 
                           key={item.id || item.name} 
                           style={{ 
                             borderBottom: "1px solid rgba(255, 255, 255, 0.03)",
-                            background: isMe ? "rgba(51, 255, 199, 0.05)" : "transparent",
-                            borderLeft: isMe ? "3px solid var(--primary-glow)" : "3px solid transparent",
+                            background:
+                                rank === 1
+                                    ? "rgba(255, 215, 0, 0.10)"
+                                    : rank === 2
+                                        ? "rgba(192, 192, 192, 0.10)"
+                                        : rank === 3
+                                            ? "rgba(205, 127, 50, 0.10)"
+                                            : isMe
+                                                ? "rgba(51, 255, 199, 0.05)"
+                                                : "transparent",
+
+                            borderLeft:
+                                rank === 1
+                                    ? "4px solid gold"
+                                    : rank === 2
+                                        ? "4px solid silver"
+                                        : rank === 3
+                                            ? "4px solid #CD7F32"
+                                            : isMe
+                                                ? "3px solid var(--primary-glow)"
+                                                : "3px solid transparent",
                             transition: "all 0.3s ease"
                           }}
                         >
                           <td style={{ padding: "16px", fontWeight: "700", fontSize: "16px", color: "var(--text-primary)" }}>
-                            {medal ? <span style={{ fontSize: "20px" }}>{medal}</span> : rank}
+                            <span>{rank}</span>
                           </td>
                           <td style={{ padding: "16px" }}>
                             <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
-                              <div 
-                                style={{ 
-                                  width: "32px", 
-                                  height: "32px", 
-                                  borderRadius: "50%", 
-                                  background: isMe ? "var(--primary-glow)" : "linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%)",
-                                  color: isMe ? "#050816" : "#ffffff",
-                                  display: "flex", 
-                                  alignItems: "center", 
-                                  justifyContent: "center",
-                                  fontWeight: "bold",
-                                  fontSize: "14px"
-                                }}
+                              <div
+                                  style={{
+                                    width: "32px",
+                                    height: "32px",
+                                    borderRadius: "50%",
+                                    background: isMe
+                                        ? "var(--primary-glow)"
+                                        : "linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%)",
+                                    color: isMe ? "#050816" : "#ffffff",
+                                    display: "flex",
+                                    alignItems: "center",
+                                    justifyContent: "center",
+                                    fontWeight: "bold",
+                                    fontSize: "14px"
+                                  }}
                               >
-                                {item.name.charAt(0).toUpperCase()}
+                                {displayName.charAt(0).toUpperCase()}
                               </div>
-                              <span style={{ fontWeight: isMe ? "700" : "500", color: isMe ? "var(--primary-glow)" : "var(--text-primary)" }}>
-                                {item.name} {isMe && <span style={{ fontSize: "11px", color: "var(--text-muted)", fontWeight: "normal" }}>(You)</span>}
-                              </span>
+
+                              <span
+                                  style={{
+                                    fontWeight: isMe ? "700" : "500",
+                                    color: isMe ? "var(--primary-glow)" : "var(--text-primary)"
+                                  }}
+                              >
+  {displayName}
+                                {isMe && (
+                                    <span
+                                        style={{
+                                          fontSize: "11px",
+                                          color: "var(--text-muted)",
+                                          fontWeight: "normal"
+                                        }}
+                                    >
+      {" "} (You)
+    </span>
+                                )}
+</span>
                             </div>
                           </td>
+
+                          <td style={{ padding: "16px", textAlign: "center" }}>
+                            {badge}
+                          </td>
+
+                          <td style={{ padding: "16px" }}>
+                            {ecoRank}
+                          </td>
+
                           <td style={{ padding: "16px", textAlign: "right", fontWeight: "700", color: "var(--text-primary)" }}>
-                            {item.totalEmission.toFixed(1)} kg
+                            {item.totalEmission ? item.totalEmission.toFixed(1) : "0.0"} kg
                           </td>
                         </tr>
                       );
@@ -2150,6 +2420,12 @@ const pieChartData = [
               </div>
             </motion.div>
           </div>
+        )}
+        {activeTab === "reportCenter" && (
+            <ReportCenter />
+        )}
+        {activeTab === "certificate" && (
+            <Certificate />
         )}
 
         {/* Tab 4: Profile and Goals Configuration */}
@@ -2309,6 +2585,42 @@ const pieChartData = [
 
                           </div>
                         </div>
+                      </div>
+                      <div className="settings-input-col" style={{ marginTop: "20px" }}>
+                        <label
+                            style={{
+                              display: "flex",
+                              alignItems: "center",
+                              gap: "10px",
+                              cursor: "pointer",
+                              fontWeight: "600",
+                              color: "var(--text-primary)",
+                            }}
+                        >
+                          <input
+                              type="checkbox"
+                              checked={profileForm.showName}
+                              onChange={(e) =>
+                                  setProfileForm({
+                                    ...profileForm,
+                                    showName: e.target.checked,
+                                  })
+                              }
+                          />
+
+                          Show my name on Community Leaderboard
+                        </label>
+
+                        <p
+                            style={{
+                              marginTop: "8px",
+                              fontSize: "12px",
+                              color: "var(--text-muted)",
+                            }}
+                        >
+                          If disabled, other users will see an anonymous ID like <b>ECO-0001</b>.
+                          You will always see your own name.
+                        </p>
                       </div>
 
                       <div className="pt-4 border-t flex justify-end" style={{ borderTop: "1px solid var(--card-border)" }}>

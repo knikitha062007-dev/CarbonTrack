@@ -1,0 +1,306 @@
+@import url('https://fonts.googleapis.com/css2?family=Great+Vibes&display=swap');
+body{
+    margin:0;
+    padding:0;
+    background:#18232f;
+}
+
+.certificate-page {
+    width: 100%;
+    padding: 20px;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    overflow-x: auto;
+}
+
+.certificate {
+    width: 100%;
+    max-width: 1000px;
+    min-height: 900px;
+    box-sizing: border-box;
+    background: #fffdf5;
+    border: 8px solid #1b8f4b;
+    border-radius: 18px;
+    position: relative;
+    padding: 50px;
+    color: #222;
+}
+
+.top-border{
+
+    position:absolute;
+
+    left:0;
+    right:0;
+    top:0;
+
+    height:16px;
+
+    background:linear-gradient(to right,#0b7a45,#d8b24a,#0b7a45);
+
+}
+
+.logo{
+    text-align:center;
+    color:#146c43;
+    font-size:48px;
+    font-weight:bold;
+    letter-spacing:3px;
+    margin-top:20px;
+    padding-left:120px;
+    font-family:Georgia, serif;
+}
+
+.tagline{
+    text-align:center;
+    color:#666;
+    font-size:20px;
+    font-style:italic;
+    margin-top:8px;
+    margin-bottom:30px;
+}
+
+.title{
+    text-align:center;
+    font-size:72px;
+    color:#b8741a;
+    font-weight:bold;
+    letter-spacing:4px;
+    text-shadow:2px 2px 6px rgba(0,0,0,.15);
+    margin-bottom:10px;
+}
+
+.subtitle{
+    text-align:center;
+    font-size:30px;
+    color:#2d5a3d;
+    letter-spacing:2px;
+    margin-bottom:35px;
+}
+
+.presented{
+
+    text-align:center;
+
+    margin-top:45px;
+
+    font-size:26px;
+
+    color:#555;
+}
+
+.username{
+
+    text-align: center;
+
+    font-size: 82px;
+
+    font-family: 'Great Vibes', cursive;
+
+    color: #b85d16;
+
+    font-weight: bold;
+
+    letter-spacing: 2px;
+
+    margin: 25px 0;
+
+    text-shadow:
+            2px 2px 5px rgba(0,0,0,0.20),
+            0 0 8px rgba(212,175,55,0.40);
+
+}
+
+.line{
+
+    width:700px;
+
+    height:2px;
+
+    background:#d8b24a;
+
+    margin:auto;
+}
+
+.description{
+
+    text-align:center;
+
+    margin-top:40px;
+
+    font-size:28px;
+
+    color:#444;
+}
+
+.streak{
+    width:620px;
+    margin:35px auto;
+    background:linear-gradient(90deg,#1b8f4b,#166534);
+    color:white;
+    font-size:34px;
+    font-weight:bold;
+    text-align:center;
+    padding:18px;
+    border-radius:8px;
+    box-shadow:0 6px 12px rgba(0,0,0,.25);
+}
+.badge{
+    position:absolute;
+    top:45px;
+    left:10px;
+    width:120px;
+    height:120px;
+    border-radius:50%;
+    background:linear-gradient(145deg,#f8d66d,#c99a06);
+    box-shadow:0 6px 15px rgba(0,0,0,.25);
+    display:flex;
+    flex-direction:column;
+    justify-content:center;
+    align-items:center;
+}
+
+.badge h3{
+
+    margin:2px;
+
+    font-size:14px;
+
+}
+
+.earth{
+
+    position:absolute;
+
+    top:60px;
+
+    right:70px;
+
+    font-size:90px;
+
+}
+
+.left-panel{
+
+    position:absolute;
+
+    left:35px;
+
+    top:240px;
+
+    display:flex;
+
+    flex-direction:column;
+
+    gap:18px;
+
+}
+
+.item{
+
+    display:flex;
+
+    align-items:center;
+
+    gap:12px;
+
+    font-size:18px;
+
+    font-weight:bold;
+
+    color:#145a32;
+
+}
+
+.item span{
+
+    font-size:18px;
+
+}
+.certificate-text{
+    width:700px;
+    margin:30px auto;
+    text-align:center;
+    font-size:26px;
+    color:#444;
+    line-height:1.7;
+}
+
+.divider{
+    width:900px;
+    margin:35px auto;
+    border:1px dashed #c8a24b;
+}
+
+.award-title{
+    text-align:center;
+    font-size:34px;
+    color:#8b5e00;
+    letter-spacing:3px;
+}
+
+.award-name{
+    text-align:center;
+    font-family:"Brush Script MT", cursive;
+    font-size:58px;
+    color:#9b4d1b;
+    text-shadow:2px 2px 5px rgba(0,0,0,.2);
+    margin-top:15px;
+}
+
+.award-leaves{
+    text-align:center;
+    font-size:38px;
+    margin:20px 0;
+}
+
+.footer{
+    display:flex;
+    justify-content:space-between;
+    align-items:flex-end;
+    margin-top:90px;
+    padding:0 80px;
+}
+.footer h3{
+    font-family:"Brush Script MT", cursive;
+    font-size:42px;
+    color:#2e7d32;
+    margin-bottom:8px;
+}
+.footer p{
+    font-size:18px;
+    color:#555;
+    margin:5px 0;
+}
+.footer h4{
+    font-size:22px;
+    font-weight:bold;
+    color:#333;
+    margin-top:5px;
+}
+
+.signature h3{
+    font-family: "Brush Script MT", cursive;
+    font-size:48px;
+    color:#2e7d32;
+    text-shadow:2px 2px 3px rgba(0,0,0,0.2);
+    font-weight:normal;
+}
+.award-line{
+    width:80%;
+    height:1px;
+    background:#d9c7a3;
+    margin:45px auto 25px;
+}
+.award-decoration{
+    text-align:center;
+    font-size:28px;
+    margin-top:10px;
+}
+
+.issue h3,
+.id h3{
+    color:#146c43;
+}

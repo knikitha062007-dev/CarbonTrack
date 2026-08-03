@@ -7,6 +7,7 @@ import Dashboard from "./pages/Dashboard";
 import OAuthSuccess from "./pages/OAuthSuccess";
 import EcoCoach from "./pages/EcoCoach";
 import Community from "./pages/Community";
+import Certificate from "./pages/Certificate";
 
 function App() {
 
@@ -27,6 +28,11 @@ function App() {
       <Route path="/eco-coach" element={<EcoCoach />} />
 
       <Route path="/community" element={<Community />} />
+
+        <Route
+            path="/certificate"
+            element={<Certificate/>}
+        />
     </Routes>
 
   );
