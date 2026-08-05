@@ -1,59 +1,45 @@
 import "../styles/Certificate.css";
+import { useEffect, useRef, useState } from "react";
+import api from "../services/api";
 import html2canvas from "html2canvas";
 import jsPDF from "jspdf";
-import { useRef, useState, useEffect } from "react";
 
 function Certificate() {
-    const [progress, setProgress] = useState(0);
+
     const certificateRef = useRef(null);
-    const required = 7;
-    const eligibility = progress >= required;
-    const status = eligibility ? "✅ Eligible" : "❌ Not Eligible";
+
+    const [loading, setLoading] = useState(true);
+
+    const [certificate, setCertificate] = useState(null);
 
     useEffect(() => {
-        const loadProgress = async () => {
-            try {
-                const userId = localStorage.getItem("id");
 
-                setProgress(7);
+        const loadCertificate = async () => {
+
+            try {
+
+                const response = await api.get("/certificate");
+
+                setCertificate(response.data);
+
             } catch (error) {
+
                 console.error(error);
+
+            } finally {
+
+                setLoading(false);
+
             }
+
         };
 
-        loadProgress();
+        loadCertificate();
+
     }, []);
-
-    if (!eligibility) {
-        return (
-            <div style={{ padding: "30px", color: "white" }}>
-                <h1>🏆 Certificate Center</h1>
-
-                <h2>🔒 Certificate Locked</h2>
-
-                <p>Eligibility Status: ❌ Not Eligible</p>
-
-                <p>Progress: {progress}/{required} Days Completed</p>
-
-                <progress
-                    value={progress}
-                    max={required}
-                    style={{ width: "300px", height: "18px" }}
-                />
-
-                <p style={{ marginTop: "20px" }}>
-                    Complete a 7-day eco activity streak to unlock your certificate.
-                </p>
-            </div>
-        );
-    }
-
     const downloadPDF = async () => {
-        if (!certificateRef.current) return;
 
-        const input = certificateRef.current;
-
-        const canvas = await html2canvas(input, {
+        const canvas = await html2canvas(certificateRef.current, {
             scale: 2
         });
 
@@ -62,82 +48,157 @@ function Certificate() {
         const pdf = new jsPDF("landscape", "mm", "a4");
 
         const pdfWidth = pdf.internal.pageSize.getWidth();
+
         const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
 
-        pdf.addImage(imgData, "PNG", 0, 0, pdfWidth, pdfHeight);
+        pdf.addImage(
+            imgData,
+            "PNG",
+            0,
+            0,
+            pdfWidth,
+            pdfHeight
+        );
 
         pdf.save("CarbonTracker_Certificate.pdf");
+
     };
-    return (
-        <div className="certificate-page">
-            <div
-                style={{
-                    background: "#f5f5f5",
-                    padding: "15px",
-                    borderRadius: "10px",
-                    marginBottom: "20px",
-                    textAlign: "center",
-                }}
-            >
-                <h3>Certificate Status</h3>
 
-                <p><strong>Eligibility:</strong> {status}</p>
+    if (loading) {
 
-                <p><strong>Progress:</strong> {progress}/{required} Days Completed</p>
+        return <h2>Loading Certificate...</h2>;
 
-                {!eligibility && (
-                    <p style={{ color: "red" }}>
-                        Complete {required - progress} more day(s) to unlock your certificate.
-                    </p>
-                )}
+    }
+
+    if (!certificate) {
+
+        return <h2>Unable to load certificate.</h2>;
+
+    }
+
+    if (!certificate.eligible) {
+
+        return (
+
+            <div className="locked-container">
+
+                <h1>🔒 Certificate Locked</h1>
+
+                <p>
+                    Complete a 7-day eco streak to unlock your certificate.
+                </p>
+
+                <p>
+                    Current Streak :
+                    <strong> {certificate.currentStreak}</strong>
+                </p>
+
             </div>
 
-            {eligibility && (
-                <>
-                    <div className="certificate" ref={certificateRef}>
+        );
 
-                        <div className="top-border"></div>
+    }
+    return (
+        <div className="certificate-page">
 
-                        <div className="badge">
-                            <div className="badge-title">ECO</div>
-                            <div className="badge-title">COMMITMENT</div>
-                            <div className="badge-title">CHAMPION</div>
+            <div className="certificate" ref={certificateRef}>
+
+                <div className="certificate-header">
+
+                    <h1>🌿 CARBON TRACKER 🌿</h1>
+
+                    <h2>Certificate of Eco Commitment</h2>
+
+                </div>
+
+                <div className="certificate-body">
+
+                    <p className="presented">
+                        This certificate is proudly presented to
+                    </p>
+
+                    <h1 className="username">
+                        {certificate.fullName}
+                    </h1>
+
+                    <p className="description">
+
+                        For demonstrating dedication towards reducing
+                        carbon emissions and adopting a sustainable lifestyle.
+
+                    </p>
+
+                    <div className="certificate-grid">
+
+                        <div className="card">
+                            <h3>Total Activities</h3>
+                            <p>{certificate.totalActivities}</p>
                         </div>
 
-                        <div className="earth">🌎</div>
-
-                        <div className="left-panel">
-                            <div className="item">🍃 <span>7 Days Streak</span></div>
-                            <div className="item">🌱 <span>25 Eco Activities</span></div>
-                            <div className="item">🌍 <span>18.6 kg CO₂ Reduced</span></div>
-                            <div className="item">⭐ <span>420 Eco Points</span></div>
-                            <div className="item">🏆 <span>Eco Rank : Level 2</span></div>
+                        <div className="card">
+                            <h3>Total Emission</h3>
+                            <p>{certificate.totalEmission} kg CO₂</p>
                         </div>
 
-                        <h1 className="logo">CARBON TRACKER</h1>
+                        <div className="card">
+                            <h3>Current Streak</h3>
+                            <p>{certificate.currentStreak} Days</p>
+                        </div>
 
-                        <p className="tagline">Track Today. Transform Tomorrow.</p>
+                        <div className="card">
+                            <h3>Eco Points</h3>
+                            <p>{certificate.ecoPoints}</p>
+                        </div>
 
-                        <h2 className="title">CERTIFICATE</h2>
+                    </div>
+                    <div className="certificate-grid">
 
-                        <h3 className="subtitle">OF ECO COMMITMENT</h3>
+                        <div className="card">
+                            <h3>Community Rank</h3>
+                            <p>#{certificate.communityRank}</p>
+                        </div>
 
-                        <p className="presented">Proudly Presented To</p>
-
-                        <h1 className="username">Priyanka Teli</h1>
+                        <div className="card">
+                            <h3>Issue Date</h3>
+                            <p>{certificate.issueDate}</p>
+                        </div>
 
                     </div>
 
-                    <div style={{ textAlign: "center", marginTop: "30px" }}>
-                        <button onClick={downloadPDF}>
-                            📥 Download Certificate
-                        </button>
-                    </div>
-                </>
-            )}
+                    <div className="badges">
 
-</div>
-);
+                        <h3>Earned Badges</h3>
+
+                        {certificate.badges.map((badge, index) => (
+
+                            <span key={index} className="badge">
+
+                            {badge}
+
+                        </span>
+
+                        ))}
+
+                    </div>
+
+                </div>
+
+            </div>
+
+            <div className="download-section">
+
+                <button
+                    className="download-btn"
+                    onClick={downloadPDF}
+                >
+                    📥 Download Certificate
+                </button>
+
+            </div>
+
+        </div>
+    );
+
 }
 
 export default Certificate;

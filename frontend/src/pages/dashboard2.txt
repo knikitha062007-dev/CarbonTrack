@@ -1099,7 +1099,6 @@ function Dashboard() {
     { day: "Sat", emission: weeklyChart.find(d => d.day === "SAT")?.emission || 0 },
     { day: "Sun", emission: weeklyChart.find(d => d.day === "SUN")?.emission || 0 },
   ];
-  const topThree = leaderboard.slice(0, 3);
   const pieChartData = [
     {
       name: "Transport",
@@ -1669,9 +1668,6 @@ function Dashboard() {
 
                         </div>
                       </div>
-                    </div>
-                  </div>
-                </div>
                 {/* ================= AI Assistant Card ================= */}
 
                 <div className="glass-card ai-dashboard-card">
@@ -2012,9 +2008,8 @@ function Dashboard() {
                   </div>
                 </div>
               </>
+
                     )}
-
-
 
 
           {/* Tab 2: Activities Logs Panel */}
@@ -2348,9 +2343,9 @@ function Dashboard() {
                     >
                       <h1 style={{ fontSize: "60px" }}>🥇</h1>
                       <h2>Rank #1</h2>
-                      <p>{topThree[0] ? "Eco Champion" : ""}</p>
-                      <h2>{leaderboard[0]?.name}</h2>
-                      <p>{topThree[0]?.ecoPoints || 0} Eco Points</p>
+                      <p>Eco Champion</p>
+                      <h2>ECO-0001</h2>
+                      <p>{leaderboard[0]?.ecoPoints || 0} Eco Points</p>
                     </div>
 
                     <div
@@ -2376,9 +2371,9 @@ function Dashboard() {
                       >
                         <h1 style={{ fontSize: "50px" }}>🥈</h1>
                         <h2>Rank #2</h2>
-                        <p>{topThree[1] ? "Eco Leader" : ""}</p>
-                        <h3>{leaderboard[1]?.name}</h3>
-                        <p>{topThree[1]?.ecoPoints || 0} Eco Points</p>
+                        <p>Eco Leader</p>
+                        <h3>ECO-0002</h3>
+                        <p>{leaderboard[1]?.ecoPoints || 0} Eco Points</p>
                       </div>
 
                       {/* Rank 3 */}
@@ -2395,9 +2390,9 @@ function Dashboard() {
                       >
                         <h1 style={{ fontSize: "50px" }}>🥉</h1>
                         <h2>Rank #3</h2>
-                        <p>{topThree[2] ? "Eco Warrior" : ""}</p>
-                        <h3>{leaderboard[2]?.name}</h3>
-                        <p>{topThree[2]?.ecoPoints || 0} Eco Points</p>
+                        <p>Eco Warrior</p>
+                        <h3>ECO-0003</h3>
+                        <p>{leaderboard[2]?.ecoPoints || 0} Eco Points</p>
                       </div>
                     </div>   {/* Closes Rank 2 & Rank 3 row */}
 
