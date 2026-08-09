@@ -30,12 +30,16 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     ) throws ServletException, IOException {
         String path = request.getServletPath();
 
-        if (path.startsWith("/oauth2") || path.startsWith("/login")) {
+        if (path.startsWith("/oauth2")
+                || path.startsWith("/login")
+                || path.startsWith("/auth")) {
+
             filterChain.doFilter(request, response);
             return;
         }
 
         String authHeader = request.getHeader("Authorization");
+        System.out.println("HEADER = " + authHeader);
 
         if (authHeader == null || !authHeader.startsWith("Bearer ")) {
             filterChain.doFilter(request, response);
@@ -43,6 +47,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         }
 
         String token = authHeader.substring(7);
+        System.out.println("TOKEN = " + token);
+        System.out.println("TOKEN LENGTH = " + token.length());
 
         String email = jwtService.extractEmail(token);
         System.out.println("JWT EMAIL = " + email);

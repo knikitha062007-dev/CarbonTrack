@@ -17,5 +17,8 @@ public class UpdateProfileRequest {
 
     private Boolean goalVisibility;
 
+    // Controls whether this user's name is visible on the leaderboard
+    private Boolean showNameOnLeaderboard;
+
     private Double co2Goal;
 }

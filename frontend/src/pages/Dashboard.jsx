@@ -1,9 +1,14 @@
 import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { DotLottieReact } from "@lottiefiles/dotlottie-react";
 import ReportCenter from "../components/ReportCenter";
 import Certificate from "./Certificate";
+import LightThemeBG from "../components/LightThemeBG";
+import DarkThemeBG from "../components/DarkThemeBG";
+import PodiumBadge from "../components/PodiumBadge";
+import GoogleTranslate from "../components/GoogleTranslate";
 
 import api from "../services/api";
 import { FaPen } from "react-icons/fa";
@@ -54,6 +59,7 @@ import "../styles/dashboard.css";
 
 function Dashboard() {
   const navigate = useNavigate();
+  const { t } = useTranslation();
   const [dashboard, setDashboard] = useState(null);
   const [userCount, setUserCount] = useState(0);
   // Load User Info from localStorage with safe fallbacks
@@ -165,13 +171,13 @@ function Dashboard() {
   ];
   const [editingId, setEditingId] = useState(null);
 
-  // Set greeting based on time of day
+  // Set greeting based on time of day — re-run when language changes
   useEffect(() => {
     const hours = new Date().getHours();
-    if (hours < 12) setGreeting("Good morning");
-    else if (hours < 18) setGreeting("Good afternoon");
-    else setGreeting("Good evening");
-  }, []);
+    if (hours < 12) setGreeting(t("dashboard.goodMorning"));
+    else if (hours < 18) setGreeting(t("dashboard.goodAfternoon"));
+    else setGreeting(t("dashboard.goodEvening"));
+  }, [t]);
 
   // Rotate eco tips automatically every 10 seconds
   useEffect(() => {
@@ -199,7 +205,7 @@ function Dashboard() {
     try {
       await api.delete(`/activities/${id}`);
 
-      triggerToast("Activity deleted successfully");
+      triggerToast(t("toast.activityDeleted"));
 
       await fetchActivities();
       await fetchDashboard();
@@ -207,7 +213,7 @@ function Dashboard() {
 
     } catch (error) {
       console.error(error);
-      triggerToast("Failed to delete activity");
+      triggerToast(t("toast.deleteFailed"));
     }
   };
   const handleEditActivity = (activity) => {
@@ -362,7 +368,7 @@ function Dashboard() {
     localStorage.removeItem("fullName");
     localStorage.removeItem("email");
     localStorage.removeItem("co2Goal");
-    triggerToast("Logging you out securely...");
+    triggerToast(t("toast.loggingOut"));
     setTimeout(() => {
       navigate("/login");
     }, 1000);
@@ -507,11 +513,7 @@ function Dashboard() {
 
       setIsModalOpen(false);
 
-      triggerToast(
-          editingId
-              ? "Activity updated successfully!"
-              : "Activity added successfully!"
-      );
+      triggerToast(editingId ? t("toast.activityUpdated") : t("toast.activityAdded"));
 
       setActivityForm({
         type: "Transport",
@@ -535,7 +537,7 @@ function Dashboard() {
 
       alert(JSON.stringify(error.response?.data || error.message));
 
-      triggerToast("Failed to save activity.");
+      triggerToast(t("toast.activityFailed"));
     }
   };
 
@@ -567,11 +569,11 @@ function Dashboard() {
       await fetchProfile();
       await fetchDashboard();
 
-      triggerToast("Profile updated successfully!");
+      triggerToast(t("toast.profileUpdated"));
 
     } catch (error) {
       console.error(error);
-      triggerToast("Failed to update profile");
+      triggerToast(t("toast.profileFailed"));
     }
   };
 
@@ -1124,6 +1126,10 @@ function Dashboard() {
   ];
   return (
       <div className={`dashboard-container theme-${theme} ${theme === 'dark' ? 'dark' : ''}`}>
+        {/* Light Theme 3D Eco Background — renders only in light mode */}
+        <LightThemeBG theme={theme} />
+        {/* Dark Theme Floating Leaves — renders only in dark mode */}
+        <DarkThemeBG theme={theme} />
         {/* Toast Notification */}
         {toastMessage && (
             <div
@@ -1163,9 +1169,7 @@ function Dashboard() {
             </div>
             <div className="profile-info">
               <span className="profile-name">{userInfo.fullName}</span>
-              <span className="profile-role">Eco Rank: {activities.length===0
-                  ? "Beginner"
-                  : `Level ${unlockedCount}`}</span>
+              <span className="profile-role">{t("sidebar.ecoRank")}: {activities.length===0 ? t("leaderboard.beginner") : `Level ${unlockedCount}`}</span>
             </div>
           </div>
 
@@ -1175,7 +1179,7 @@ function Dashboard() {
                 onClick={() => setActiveTab("dashboard")}
             >
               <FaChartLine className="sidebar-item-icon" />
-              <span className="sidebar-item-text">Dashboard</span>
+              <span className="sidebar-item-text">{t("sidebar.dashboard")}</span>
             </li>
 
             <li
@@ -1183,34 +1187,34 @@ function Dashboard() {
                 onClick={() => setActiveTab("reportCenter")}
             >
               <FaChartBar className="sidebar-item-icon" />
-              <span className="sidebar-item-text">Reports Center</span>
+              <span className="sidebar-item-text">{t("sidebar.reportsCenter")}</span>
             </li>
             <li
                 className={`sidebar-item ${activeTab === "certificate" ? "active" : ""}`}
                 onClick={() => setActiveTab("certificate")}
             >
-              <span className="sidebar-item-text">🏆 Certificate</span>
+              <span className="sidebar-item-text">🏆 {t("sidebar.certificate")}</span>
             </li>
             <li
                 className={`sidebar-item ${activeTab === "activities" ? "active" : ""}`}
                 onClick={() => setActiveTab("activities")}
             >
               <FaHistory className="sidebar-item-icon" />
-              <span className="sidebar-item-text">Activities</span>
+              <span className="sidebar-item-text">{t("sidebar.activities")}</span>
             </li>
             <li
                 className={`sidebar-item ${activeTab === "reports" ? "active" : ""}`}
                 onClick={() => setActiveTab("reports")}
             >
               <FaTrophy className="sidebar-item-icon" />
-              <span className="sidebar-item-text">Leaderboard</span>
+              <span className="sidebar-item-text">{t("sidebar.leaderboard")}</span>
             </li>
             <li
                 className="sidebar-item"
                 onClick={() => navigate("/eco-coach")}
             >
               <FaLeaf className="sidebar-item-icon" />
-              <span className="sidebar-item-text">Eco Coach</span>
+              <span className="sidebar-item-text">{t("sidebar.ecoCoach")}</span>
             </li>
 
             <li
@@ -1218,7 +1222,7 @@ function Dashboard() {
                 onClick={() => navigate("/community")}
             >
               <FaUsers className="sidebar-item-icon" />
-              <span className="sidebar-item-text">Community Feed</span>
+              <span className="sidebar-item-text">{t("sidebar.communityFeed")}</span>
             </li>
 
             <li
@@ -1234,12 +1238,12 @@ function Dashboard() {
                 }}
             >
               <FaUser className="sidebar-item-icon" />
-              <span className="sidebar-item-text">Profile Settings</span>
+              <span className="sidebar-item-text">{t("sidebar.profileSettings")}</span>
             </li>
 
             <li className="sidebar-item logout-btn" onClick={handleLogout}>
               <FaSignOutAlt className="sidebar-item-icon" />
-              <span className="sidebar-item-text">Log Out</span>
+              <span className="sidebar-item-text">{t("sidebar.logOut")}</span>
             </li>
           </ul>
         </aside>
@@ -1250,20 +1254,21 @@ function Dashboard() {
           <div className="page-header">
             <div className="page-title">
               <h1>
-                {activeTab === "dashboard" && "Dashboard Overview"}
-                {activeTab === "activities" && "Your Activity Logs"}
-                {activeTab === "reports" && "🏆 Leaderboard & Badges"}
-                {activeTab === "profile" && "Account & Profile Settings"}
+                {activeTab === "dashboard" && t("dashboard.title")}
+                {activeTab === "activities" && t("dashboard.activitiesTitle")}
+                {activeTab === "reports" && t("dashboard.leaderboardTitle")}
+                {activeTab === "profile" && t("dashboard.profileTitle")}
               </h1>
               <p>
-                {activeTab === "dashboard" && "Real-time summary of your ecological carbon footprint."}
-                {activeTab === "activities" && "Add, track, filter, and inspect your carbon emitting events."}
-                {activeTab === "reports" && "Track community standings and unlock badges by lowering your carbon footprint."}
-                {activeTab === "profile" && "Personalize your dashboard and optimize your daily carbon limits."}
+                {activeTab === "dashboard" && t("dashboard.subtitle")}
+                {activeTab === "activities" && t("dashboard.activitiesSub")}
+                {activeTab === "reports" && t("dashboard.leaderboardSub")}
+                {activeTab === "profile" && t("dashboard.profileSub")}
               </p>
             </div>
 
             <div className="header-actions">
+              <GoogleTranslate theme={theme} />
               <div className="date-badge">
                 <FaCalendarAlt style={{ color: "#33FFC7" }} />
                 <span>{new Date().toLocaleDateString("en-IN",{
@@ -1278,7 +1283,7 @@ function Dashboard() {
                 setIsModalOpen(true);
               }}>
                 <FaPlus />
-                <span>Log Activity</span>
+                <span>{t("dashboard.logActivity")}</span>
               </button>
             </div>
           </div>
@@ -1294,14 +1299,12 @@ function Dashboard() {
                       <h2>
                         {greeting}, {userInfo.fullName}! 👋
                       </h2>
-                      <p>
-                        Great to see you today! Let's continue logging transport, electricity, food, and shopping inputs to stay carbon neutral. Swapping habits today guarantees a greener tomorrow.
-                      </p>
+                      <p>{t("dashboard.welcomeMsg")}</p>
                     </div>
                     <div className="welcome-tip">
                       <FaLeaf className="tip-icon" />
                       <div className="tip-text">
-                        <strong>Daily Eco Tip:</strong> {ecoTips[tipIndex]}
+                        <strong>{t("dashboard.dailyEcoTip")}</strong> {ecoTips[tipIndex]}
                       </div>
                     </div>
                   </div>
@@ -1309,38 +1312,29 @@ function Dashboard() {
                   {/* Carbon Footprint Summary Card */}
                   <div className="glass-card summary-card">
                     <div className="summary-title">
-                      <h3>CARBON FOOTPRINT SUMMARY</h3>
+                      <h3>{t("dashboard.carbonFootprintSummary")}</h3>
                       <div className={`status-indicator ${isOverGoal ? "warning" : "on-track"}`}>
                         <FaGlobe />
-                        <span>{isOverGoal ? "CRITICAL LIMIT" : "ON TRACK"}</span>
+                        <span>{isOverGoal ? t("dashboard.criticalLimit") : t("dashboard.onTrack")}</span>
                       </div>
                     </div>
                     <div className="emission-display">
-                  <span className="emission-value">
-                    {dashboard ? dashboard.totalEmission.toFixed(2) : "0.00"}
-                  </span>
-                      <span className="emission-unit">kg CO₂e Total</span>
+                      <span className="emission-value">
+                        {dashboard ? dashboard.totalEmission.toFixed(2) : "0.00"}
+                      </span>
+                      <span className="emission-unit">{t("dashboard.kgCO2Total")}</span>
                     </div>
                     <div className="progress-section">
                       <div className="progress-header">
-                        <span>Daily Limit Budget</span>
-                        <span>
-                     {dashboard ? dashboard.goalPercentage.toFixed(1) : "0"}% Used
-                   </span>
+                        <span>{t("dashboard.dailyLimitBudget")}</span>
+                        <span>{dashboard ? dashboard.goalPercentage.toFixed(1) : "0"}% {t("dashboard.used")}</span>
                       </div>
                       <div className="progress-bar-container">
-                        <div
-                            className={`progress-bar-fill ${isOverGoal ? "warning-fill" : ""}`}
-                            style={{
-                              width: `${dashboard ? dashboard.goalPercentage : 0}%`
-                            }}
-                        ></div>
+                        <div className={`progress-bar-fill ${isOverGoal ? "warning-fill" : ""}`} style={{ width: `${dashboard ? dashboard.goalPercentage : 0}%` }}></div>
                       </div>
                       <div className="progress-header" style={{ marginTop: "8px", fontSize: "11px" }}>
                         <span>0 kg CO₂</span>
-                        <span>
-                      Target: {dashboard ? dashboard.goal : 500} kg CO₂
-                    </span>
+                        <span>{t("dashboard.target")}: {dashboard ? dashboard.goal : 500} kg CO₂</span>
                       </div>
                     </div>
                   </div>
@@ -1351,325 +1345,342 @@ function Dashboard() {
                   {/* Transport Card */}
                   <div className="glass-card stat-card transport" onClick={() => setActiveTab("activities")}>
                     <div className="stat-card-header">
-                      <span className="stat-title">TRANSPORT</span>
+                      <span className="stat-title">{t("dashboard.transport")}</span>
                       <div className="stat-icon-wrapper" style={{ "--icon-color-rgb": "59, 130, 246" }}>
                         <FaCar />
                       </div>
                     </div>
                     <div className="stat-value">{catStats.Transport.toFixed(1)} kg</div>
                     <div className="stat-trend decrease">
-                      <span>Based on your latest activity</span>
+                      <span>{t("dashboard.basedOnLatest")}</span>
                     </div>
                   </div>
 
                   {/* Electricity Card */}
                   <div className="glass-card stat-card electricity" onClick={() => setActiveTab("activities")}>
                     <div className="stat-card-header">
-                      <span className="stat-title">ELECTRICITY</span>
+                      <span className="stat-title">{t("dashboard.electricity")}</span>
                       <div className="stat-icon-wrapper" style={{ "--icon-color-rgb": "234, 179, 8" }}>
                         <FaBolt />
                       </div>
                     </div>
                     <div className="stat-value">{catStats.Electricity.toFixed(1)} kg</div>
                     <div className="stat-trend increase">
-                      <span>Based on your latest activity</span>
+                      <span>{t("dashboard.basedOnLatest")}</span>
                     </div>
                   </div>
 
                   {/* Food Card */}
                   <div className="glass-card stat-card food" onClick={() => setActiveTab("activities")}>
                     <div className="stat-card-header">
-                      <span className="stat-title">FOOD CHOICE</span>
+                      <span className="stat-title">{t("dashboard.foodChoice")}</span>
                       <div className="stat-icon-wrapper" style={{ "--icon-color-rgb": "249, 115, 22" }}>
                         <FaUtensils />
                       </div>
                     </div>
                     <div className="stat-value">{catStats.Food.toFixed(1)} kg</div>
                     <div className="stat-trend decrease">
-                      <span>Based on your latest activity</span>
+                      <span>{t("dashboard.basedOnLatest")}</span>
                     </div>
                   </div>
 
                   {/* Shopping Card */}
                   <div className="glass-card stat-card shopping" onClick={() => setActiveTab("activities")}>
                     <div className="stat-card-header">
-                      <span className="stat-title">SHOPPING & GOODS</span>
+                      <span className="stat-title">{t("dashboard.shoppingGoods")}</span>
                       <div className="stat-icon-wrapper" style={{ "--icon-color-rgb": "168, 85, 247" }}>
                         <FaShoppingBag />
                       </div>
                     </div>
                     <div className="stat-value">{catStats.Shopping.toFixed(1)} kg</div>
                     <div className="stat-trend decrease">
-                      <span>Based on your latest activity</span>
+                      <span>{t("dashboard.basedOnLatest")}</span>
                     </div>
                   </div>
                 </div>
-                <div className="glass-card">
-                  <div style={{ padding: "25px" }}>
+                {/* ── Goal Progress Card — REDESIGNED ── */}
+                <div className="gp2-wrapper glass-card">
+                  {/* Header row */}
+                  <div className="gp2-header">
+                    <div className="gp2-title-group">
+                      <span className="gp2-icon">🎯</span>
+                      <div>
+                        <h3 className="gp2-title">{t("dashboard.goalProgress")}</h3>
+                        <p className="gp2-subtitle">Track your journey towards a greener future</p>
+                      </div>
+                    </div>
+                    <span className={`gp2-status-pill ${progressPercent < 80 ? "pill-safe" : "pill-danger"}`}>
+                      <span className="gp2-status-dot" />
+                      {progressPercent < 50 ? t("dashboard.safe") : progressPercent < 80 ? t("dashboard.warn") : t("dashboard.danger")}
+                    </span>
+                  </div>
 
-                    <h3 style={{ marginBottom: "20px" }}>
-                      🎯 Goal Progress
-                    </h3>
+                  {/* Main body: ring + right info */}
+                  <div className="gp2-body">
+                    {/* Circular ring */}
+                    <div className="gp2-ring-container">
+                      <svg className="gp2-ring-svg" viewBox="0 0 200 200">
+                        <defs>
+                          <linearGradient id="gpGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                            <stop offset="0%" stopColor="#33FFC7" />
+                            <stop offset="100%" stopColor="#10b981" />
+                          </linearGradient>
+                          <filter id="gpGlow">
+                            <feGaussianBlur stdDeviation="3" result="blur" />
+                            <feMerge><feMergeNode in="blur" /><feMergeNode in="SourceGraphic" /></feMerge>
+                          </filter>
+                        </defs>
+                        {/* Track */}
+                        <circle cx="100" cy="100" r="80" fill="none"
+                          stroke={theme === "dark" ? "rgba(255,255,255,0.06)" : "rgba(0,0,0,0.06)"}
+                          strokeWidth="14" />
+                        {/* Progress arc */}
+                        <circle cx="100" cy="100" r="80" fill="none"
+                          stroke="url(#gpGrad)"
+                          strokeWidth="14"
+                          strokeLinecap="round"
+                          strokeDasharray={`${2 * Math.PI * 80}`}
+                          strokeDashoffset={`${2 * Math.PI * 80 * (1 - Math.min(progressPercent, 100) / 100)}`}
+                          transform="rotate(-90 100 100)"
+                          filter="url(#gpGlow)"
+                          style={{ transition: "stroke-dashoffset 1.2s cubic-bezier(0.4,0,0.2,1)" }}
+                        />
+                        {/* Glow dot at tip */}
+                        <circle cx="100" cy="20" r="7" fill="#33FFC7" opacity="0.9"
+                          transform={`rotate(${progressPercent * 3.6 - 90} 100 100)`}
+                          style={{ transition: "transform 1.2s cubic-bezier(0.4,0,0.2,1)" }}
+                        />
+                      </svg>
+                      {/* Center content */}
+                      <div className="gp2-ring-center">
+                        <span className="gp2-leaf-icon">🌿</span>
+                        <span className="gp2-ring-value">{totalEmissions.toFixed(1)}</span>
+                        <span className="gp2-ring-unit">of {goal} kg</span>
+                      </div>
+                    </div>
 
-                    <p>
-                      <strong>Goal :</strong> {goal} kg CO₂
-                    </p>
+                    {/* Right info panel */}
+                    <div className="gp2-info-panel">
+                      <div className="gp2-info-top">
+                        <p className="gp2-daily-label">{t("dashboard.goal")}</p>
+                        <div className="gp2-daily-value">{goal} <span>kg CO₂e</span></div>
+                        <p className={`gp2-motivational ${progressPercent < 50 ? "motiv-green" : progressPercent < 80 ? "motiv-yellow" : "motiv-red"}`}>
+                          {progressPercent < 50
+                            ? "You're doing great! Keep it up."
+                            : progressPercent < 80
+                              ? "Getting close — stay mindful."
+                              : "Reduce emissions to meet your goal."}
+                        </p>
+                      </div>
 
-                    <p>
-                      <strong>Current Emission :</strong>{" "}
-                      {totalEmissions.toFixed(2)} kg CO₂
-                    </p>
+                      {/* Slim progress bar */}
+                      <div className="gp2-bar-wrap">
+                        <div className="gp2-bar-track">
+                          <div
+                            className={`gp2-bar-fill ${progressPercent < 50 ? "fill-safe" : progressPercent < 80 ? "fill-warn" : "fill-danger"}`}
+                            style={{ width: `${Math.min(progressPercent, 100)}%` }}
+                          />
+                        </div>
+                        <div className="gp2-bar-labels">
+                          <span>{progressPercent.toFixed(1)}% of daily goal</span>
+                          <span>{Math.max(0, goal - totalEmissions).toFixed(1)} kg remaining</span>
+                        </div>
+                      </div>
 
-                    <p>
-                      <strong>Remaining :</strong>{" "}
-                      {(goal - totalEmissions).toFixed(2)} kg CO₂
-                    </p>
+                      {/* 3 stat mini-cards */}
+                      <div className="gp2-mini-cards">
+                        <div className="gp2-mini-card">
+                          <span className="gp2-mini-icon" style={{ background: "rgba(59,130,246,0.15)", color: "#3b82f6" }}>📈</span>
+                          <div>
+                            <div className="gp2-mini-lbl">{t("dashboard.current")}</div>
+                            <div className="gp2-mini-val">{totalEmissions.toFixed(1)} kg</div>
+                            <div className="gp2-mini-sub">Today</div>
+                          </div>
+                        </div>
+                        <div className="gp2-mini-card">
+                          <span className="gp2-mini-icon" style={{ background: "rgba(168,85,247,0.15)", color: "#a855f7" }}>🏆</span>
+                          <div>
+                            <div className="gp2-mini-lbl">Best Streak</div>
+                            <div className="gp2-mini-val">{streakInfo.ongoingStreak} <span style={{fontSize:"13px"}}>Days</span></div>
+                            <div className="gp2-mini-sub">Keep it going!</div>
+                          </div>
+                        </div>
+                        <div className="gp2-mini-card">
+                          <span className="gp2-mini-icon" style={{ background: "rgba(16,185,129,0.15)", color: "#10b981" }}>🌱</span>
+                          <div>
+                            <div className="gp2-mini-lbl">{t("dashboard.remaining")}</div>
+                            <div className="gp2-mini-val">{Math.max(0, goal - totalEmissions).toFixed(1)} kg</div>
+                            <div className="gp2-mini-sub">Available</div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
 
-                    <p>
-                      <strong>Progress :</strong>{" "}
-                      {progressPercent.toFixed(1)}%
-                    </p>
+                {/* ── Emission Comparison Card — REDESIGNED ── */}
+                <div className="ec2-wrapper glass-card">
+                  {/* Header */}
+                  <div className="ec2-header">
+                    <div className="ec2-title-group">
+                      <span className="ec2-leaf">🌿</span>
+                      <div>
+                        <h3 className="ec2-title">{t("dashboard.emissionComparison")}</h3>
+                        <p className="ec2-subtitle">Visualize and compare your emissions over time</p>
+                      </div>
+                    </div>
+                  </div>
 
-                    <div
-                        style={{
-                          width: "100%",
-                          height: "15px",
-                          background: "#ddd",
-                          borderRadius: "10px",
-                          overflow: "hidden",
-                          marginTop: "15px"
-                        }}
-                    >
-                      <div
-                          style={{
-                            width: `${progressPercent}%`,
-                            height: "100%",
-                            background:
-                                progressPercent < 50
-                                    ? "green"
-                                    : progressPercent < 80
-                                        ? "orange"
-                                        : "red"
+                  {/* Summary cards row */}
+                  <div className="ec2-cards-row">
+                    {/* Today vs Yesterday */}
+                    <div className="ec2-card" style={{ "--ec-accent": "#33FFC7" }}>
+                      <div className="ec2-card-top">
+                        <div>
+                          <div className="ec2-card-period">{t("dashboard.today")}</div>
+                          <div className="ec2-card-sub">vs {t("dashboard.yesterday")}</div>
+                        </div>
+                        <div className="ec2-card-icon">📅</div>
+                      </div>
+                      <div className="ec2-card-value">{(comparison?.today ?? 0).toFixed(2)} kg</div>
+                      {(() => {
+                        const curr = comparison?.today ?? 0;
+                        const prev = comparison?.yesterday ?? 0;
+                        const diff = prev > 0 ? ((curr - prev) / prev * 100) : 0;
+                        const better = curr <= prev;
+                        return (
+                          <>
+                            <div className={`ec2-card-change ${better ? "change-good" : "change-bad"}`}>
+                              {better ? "↓" : "↑"} {Math.abs(diff).toFixed(1)}%
+                            </div>
+                            <div className="ec2-card-status">{better ? "Better than yesterday" : "More than yesterday"}</div>
+                          </>
+                        );
+                      })()}
+                    </div>
+
+                    {/* This Week vs Last Week */}
+                    <div className="ec2-card" style={{ "--ec-accent": "#818cf8" }}>
+                      <div className="ec2-card-top">
+                        <div>
+                          <div className="ec2-card-period">{t("dashboard.thisWeek")}</div>
+                          <div className="ec2-card-sub">vs {t("dashboard.lastWeek")}</div>
+                        </div>
+                        <div className="ec2-card-icon" style={{ background: "rgba(129,140,248,0.15)", color: "#818cf8" }}>📆</div>
+                      </div>
+                      <div className="ec2-card-value">{(comparison?.thisWeek ?? 0).toFixed(2)} kg</div>
+                      {(() => {
+                        const curr = comparison?.thisWeek ?? 0;
+                        const prev = comparison?.lastWeek ?? 0;
+                        const diff = prev > 0 ? ((curr - prev) / prev * 100) : 0;
+                        const better = curr <= prev;
+                        return (
+                          <>
+                            <div className={`ec2-card-change ${better ? "change-good" : "change-bad"}`}>
+                              {better ? "↓" : "↑"} {Math.abs(diff).toFixed(1)}%
+                            </div>
+                            <div className="ec2-card-status">{better ? "Better than last week" : "More than last week"}</div>
+                          </>
+                        );
+                      })()}
+                    </div>
+
+                    {/* This Month vs Last Month */}
+                    <div className="ec2-card" style={{ "--ec-accent": "#f59e0b" }}>
+                      <div className="ec2-card-top">
+                        <div>
+                          <div className="ec2-card-period">{t("dashboard.thisMonth")}</div>
+                          <div className="ec2-card-sub">vs {t("dashboard.lastMonth")}</div>
+                        </div>
+                        <div className="ec2-card-icon" style={{ background: "rgba(245,158,11,0.15)", color: "#f59e0b" }}>🗓️</div>
+                      </div>
+                      <div className="ec2-card-value">{(comparison?.thisMonth ?? 0).toFixed(2)} kg</div>
+                      {(() => {
+                        const curr = comparison?.thisMonth ?? 0;
+                        const prev = comparison?.lastMonth ?? 0;
+                        const diff = prev > 0 ? ((curr - prev) / prev * 100) : 0;
+                        const better = curr <= prev;
+                        return (
+                          <>
+                            <div className={`ec2-card-change ${better ? "change-good" : "change-bad"}`}>
+                              {better ? "↓" : "↑"} {Math.abs(diff).toFixed(1)}%
+                            </div>
+                            <div className="ec2-card-status">{better ? "Better than last month" : "More than last month"}</div>
+                          </>
+                        );
+                      })()}
+                    </div>
+
+                    {/* Total Emissions */}
+                    <div className="ec2-card" style={{ "--ec-accent": "#f97316" }}>
+                      <div className="ec2-card-top">
+                        <div>
+                          <div className="ec2-card-period">Total Emissions</div>
+                          <div className="ec2-card-sub">All Time</div>
+                        </div>
+                        <div className="ec2-card-icon" style={{ background: "rgba(249,115,22,0.15)", color: "#f97316" }}>☁️</div>
+                      </div>
+                      <div className="ec2-card-value">{totalEmissions.toFixed(2)} kg</div>
+                      <div className="ec2-card-change change-neutral">— recorded</div>
+                      <div className="ec2-card-status">Total recorded</div>
+                    </div>
+                  </div>
+
+                  {/* Comparison chart */}
+                  <div className="ec2-chart-section">
+                    <div className="ec2-chart-legend">
+                      <span className="ec2-legend-dot" style={{ background: "#33FFC7" }} /> {t("dashboard.currentPeriod")}
+                      <span className="ec2-legend-dot" style={{ background: "#818cf8", marginLeft: "18px" }} /> {t("dashboard.previousPeriod")}
+                    </div>
+                    <ResponsiveContainer width="100%" height={240}>
+                      <AreaChart
+                        data={[
+                          { label: t("dashboard.todayVsYesterday"),   current: comparison?.today ?? 0,     previous: comparison?.yesterday ?? 0 },
+                          { label: t("dashboard.thisWeekVsLast"),     current: comparison?.thisWeek ?? 0,  previous: comparison?.lastWeek ?? 0 },
+                          { label: t("dashboard.thisMonthVsLast"),    current: comparison?.thisMonth ?? 0, previous: comparison?.lastMonth ?? 0 },
+                        ]}
+                        margin={{ top: 10, right: 30, left: 0, bottom: 0 }}
+                      >
+                        <defs>
+                          <linearGradient id="ecGradCurrent" x1="0" y1="0" x2="0" y2="1">
+                            <stop offset="5%" stopColor="#33FFC7" stopOpacity={0.35} />
+                            <stop offset="95%" stopColor="#33FFC7" stopOpacity={0} />
+                          </linearGradient>
+                          <linearGradient id="ecGradPrev" x1="0" y1="0" x2="0" y2="1">
+                            <stop offset="5%" stopColor="#818cf8" stopOpacity={0.25} />
+                            <stop offset="95%" stopColor="#818cf8" stopOpacity={0} />
+                          </linearGradient>
+                        </defs>
+                        <CartesianGrid strokeDasharray="3 3"
+                          stroke={theme === "dark" ? "rgba(255,255,255,0.05)" : "rgba(0,0,0,0.06)"} />
+                        <XAxis dataKey="label"
+                          tick={{ fill: theme === "dark" ? "#94a3b8" : "#64748b", fontSize: 12 }} />
+                        <YAxis tick={{ fill: theme === "dark" ? "#94a3b8" : "#64748b", fontSize: 11 }} />
+                        <RechartsTooltip
+                          contentStyle={{
+                            background: theme === "dark" ? "rgba(10,16,32,0.97)" : "#ffffff",
+                            border: "1px solid rgba(51,255,199,0.2)",
+                            borderRadius: "12px",
                           }}
-                      ></div>
-                    </div>
-
-                    <p style={{ marginTop: "15px" }}>
-                      {progressPercent < 50
-                          ? "✅ Excellent! You are within your carbon goal."
-                          : progressPercent < 80
-                              ? "⚠️ Keep going! You are approaching your goal."
-                              : "🚨 Warning! You are close to exceeding your goal."}
-                    </p>
-
+                          labelStyle={{ color: theme === "dark" ? "#ffffff" : "#1e293b" }}
+                        />
+                        <Area type="monotone" dataKey="previous" stroke="#818cf8" strokeWidth={2.5}
+                          fill="url(#ecGradPrev)" dot={{ fill: "#818cf8", r: 4 }} />
+                        <Area type="monotone" dataKey="current" stroke="#33FFC7" strokeWidth={3}
+                          fill="url(#ecGradCurrent)" dot={{ fill: "#33FFC7", r: 5 }} />
+                      </AreaChart>
+                    </ResponsiveContainer>
                   </div>
-                </div>
-                <div className="glass-card" style={{ marginTop: "20px" }}>
-                  <div style={{ padding: "25px" }}>
 
-                    <h3>📊 Emission Comparison</h3>
-
-                    <div
-                        style={{
-                          display: "grid",
-                          gap: "18px",
-                          marginTop: "20px",
-                        }}
-                    >
-
-                      {/* Today vs Yesterday */}
-
-                      <div style={{ marginBottom: "30px" }}>
-                        <h4 style={{ marginBottom: "15px" }}>Today vs Yesterday</h4>
-
-                        <div style={{ display: "flex", flexDirection: "column", gap: "15px" }}>
-
-                          {/* Today */}
-                          <div style={{ display: "flex", alignItems: "center", gap: "15px" }}>
-                            <div style={{ width: "130px", fontWeight: "600" }}>Today</div>
-
-                            <div
-                                style={{
-                                  flex: 1,
-                                  background: "#2b3548",
-                                  height: "18px",
-                                  borderRadius: "20px",
-                                  overflow: "hidden",
-                                }}
-                            >
-                              <div
-                                  style={{
-                                    width: `${Math.min(comparison?.today ?? 0,100)}%`,
-                                    height: "100%",
-                                    background: "#2ECC71",
-                                  }}
-                              ></div>
-                            </div>
-
-                            <div style={{ width: "80px", textAlign: "right" }}>
-                              {comparison?.today?.toFixed(2) ?? "0.00"} kg
-                            </div>
-                          </div>
-
-                          {/* Yesterday */}
-                          <div style={{ display: "flex", alignItems: "center", gap: "15px" }}>
-                            <div style={{ width: "130px", fontWeight: "600" }}>Yesterday</div>
-
-                            <div
-                                style={{
-                                  flex: 1,
-                                  background: "#2b3548",
-                                  height: "18px",
-                                  borderRadius: "20px",
-                                  overflow: "hidden",
-                                }}
-                            >
-                              <div
-                                  style={{
-                                    width: `${Math.min(comparison?.yesterday ?? 0,100)}%`,
-                                    height: "100%",
-                                    background: "#3B82F6",
-                                  }}
-                              ></div>
-                            </div>
-
-                            <div style={{ width: "80px", textAlign: "right" }}>
-                              {comparison?.yesterday?.toFixed(2) ?? "0.00"} kg
-                            </div>
-                          </div>
-
-                        </div>
-                      </div>
-
-                      {/* This Week vs Last Week */}
-
-                      <div style={{ marginBottom: "30px" }}>
-                        <h4 style={{ marginBottom: "15px" }}>This Week vs Last Week</h4>
-
-                        <div style={{ display: "flex", flexDirection: "column", gap: "15px" }}>
-
-                          {/* This Week */}
-                          <div style={{ display: "flex", alignItems: "center", gap: "15px" }}>
-                            <div style={{ width: "130px", fontWeight: "600" }}>This Week</div>
-
-                            <div
-                                style={{
-                                  flex: 1,
-                                  background: "#2b3548",
-                                  height: "18px",
-                                  borderRadius: "20px",
-                                  overflow: "hidden",
-                                }}
-                            >
-                              <div
-                                  style={{
-                                    width: `${Math.min(comparison?.thisWeek ?? 0,100)}%`,
-                                    height: "100%",
-                                    background: "#2ECC71",
-                                  }}
-                              ></div>
-                            </div>
-
-                            <div style={{ width: "80px", textAlign: "right" }}>
-                              {comparison?.thisWeek?.toFixed(2) ?? "0.00"} kg
-                            </div>
-                          </div>
-
-                          {/* Last Week */}
-                          <div style={{ display: "flex", alignItems: "center", gap: "15px" }}>
-                            <div style={{ width: "130px", fontWeight: "600" }}>Last Week</div>
-
-                            <div
-                                style={{
-                                  flex: 1,
-                                  background: "#2b3548",
-                                  height: "18px",
-                                  borderRadius: "20px",
-                                  overflow: "hidden",
-                                }}
-                            >
-                              <div
-                                  style={{
-                                    width: `${Math.min(comparison?.lastWeek ?? 0,100)}%`,
-                                    height: "100%",
-                                    background: "#3B82F6",
-                                  }}
-                              ></div>
-                            </div>
-
-                            <div style={{ width: "80px", textAlign: "right" }}>
-                              {comparison?.lastWeek?.toFixed(2) ?? "0.00"} kg
-                            </div>
-                          </div>
-
-                        </div>
-                      </div>
-
-
-                      {/* This Month vs Last Month */}
-
-                      <div style={{ marginBottom: "30px" }}>
-                        <h4 style={{ marginBottom: "15px" }}>This Month vs Last Month</h4>
-
-                        <div style={{ display: "flex", flexDirection: "column", gap: "15px" }}>
-
-                          {/* This Month */}
-                          <div style={{ display: "flex", alignItems: "center", gap: "15px" }}>
-                            <div style={{ width: "130px", fontWeight: "600" }}>This Month</div>
-
-                            <div
-                                style={{
-                                  flex: 1,
-                                  background: "#2b3548",
-                                  height: "18px",
-                                  borderRadius: "20px",
-                                  overflow: "hidden",
-                                }}
-                            >
-                              <div
-                                  style={{
-                                    width: `${Math.min(comparison?.thisMonth ?? 0, 100)}%`,
-                                    height: "100%",
-                                    background: "#2ECC71",
-                                  }}
-                              ></div>
-                            </div>
-
-                            <div style={{ width: "80px", textAlign: "right" }}>
-                              {comparison?.thisMonth?.toFixed(2) ?? "0.00"} kg
-                            </div>
-                          </div>
-
-                          {/* Last Month */}
-                          <div style={{ display: "flex", alignItems: "center", gap: "15px" }}>
-                            <div style={{ width: "130px", fontWeight: "600" }}>Last Month</div>
-
-                            <div
-                                style={{
-                                  flex: 1,
-                                  background: "#2b3548",
-                                  height: "18px",
-                                  borderRadius: "20px",
-                                  overflow: "hidden",
-                                }}
-                            >
-                              <div
-                                  style={{
-                                    width: `${Math.min(comparison?.lastMonth ?? 0, 100)}%`,
-                                    height: "100%",
-                                    background: "#3B82F6",
-                                  }}
-                              ></div>
-                            </div>
-
-                            <div style={{ width: "80px", textAlign: "right" }}>
-                              {comparison?.lastMonth?.toFixed(2) ?? "0.00"} kg
-                            </div>
-                          </div>
-
-                        </div>
-                      </div>
+                  {/* Bottom motivational row */}
+                  <div className="ec2-bottom-row">
+                    <div className="ec2-reduce-badge">
+                      <span>🌿</span>
+                      <span>Reducing emissions one step at a time!</span>
                     </div>
+                    <button className="ec2-report-btn" onClick={() => setActiveTab("reportCenter")}>
+                      View Detailed Report →
+                    </button>
                   </div>
                 </div>
                 {/* ================= AI Assistant Card ================= */}
@@ -1678,23 +1689,10 @@ function Dashboard() {
 
                   <div className="ai-left">
 
-                    <div className="ai-title">
-
-                      🤖 Eco Assistant
-
-                    </div>
-
-                    <p>
-
-                      Get personalized sustainability insights powered by Gemini AI.
-
-                    </p>
-
-                    <button
-                        className="ask-ai-btn"
-                        onClick={() => navigate("/eco-coach")}
-                    >
-                      Ask Eco AI →
+                    <div className="ai-title">{t("dashboard.ecoAssistant")}</div>
+                    <p>{t("dashboard.aiDesc")}</p>
+                    <button className="ask-ai-btn" onClick={() => navigate("/eco-coach")}>
+                      {t("dashboard.askEcoAI")}
                     </button>
 
                   </div>
@@ -1720,26 +1718,15 @@ function Dashboard() {
                   <div className="glass-card">
                     <div className="chart-card-header">
                       <h3>
-                        {chartView === "week"
-                            ? "Weekly Carbon Emissions"
-                            : "Monthly Carbon Emissions"}
+                        {chartView === "week" ? t("dashboard.weeklyEmissions") : t("dashboard.monthlyEmissions")}
                       </h3>
                       <div className="chart-period-selector">
-
-                        <button
-                            className={`period-btn ${chartView === "week" ? "active" : ""}`}
-                            onClick={() => setChartView("week")}
-                        >
-                          Week (Mon - Sun)
+                        <button className={`period-btn ${chartView === "week" ? "active" : ""}`} onClick={() => setChartView("week")}>
+                          {t("dashboard.weekMon")} - {t("dashboard.weekSun")}
                         </button>
-
-                        <button
-                            className={`period-btn ${chartView === "month" ? "active" : ""}`}
-                            onClick={() => setChartView("month")}
-                        >
-                          Month
+                        <button className={`period-btn ${chartView === "month" ? "active" : ""}`} onClick={() => setChartView("month")}>
+                          {t("dashboard.monthlyEmissions")}
                         </button>
-
                       </div>
                     </div>
                     <div
@@ -1800,7 +1787,7 @@ function Dashboard() {
                   {/* Breakdown Card */}
                   <div className="glass-card breakdown-card">
                     <div className="chart-card-header">
-                      <h3>Emission Breakdown</h3>
+                      <h3>{t("dashboard.emissionBreakdown")}</h3>
                     </div>
                     <div
                         style={{
@@ -1845,7 +1832,7 @@ function Dashboard() {
                       <div className="breakdown-item">
                         <div className="breakdown-label-group">
                           <div className="breakdown-color-dot" style={{ background: "rgba(59, 130, 246, 0.8)" }}></div>
-                          <span className="breakdown-label">Transport</span>
+                          <span className="breakdown-label">{t("dashboard.transport")}</span>
                         </div>
                         <div className="breakdown-details">
                           <div className="breakdown-val">{catStats.Transport.toFixed(1)} kg</div>
@@ -1860,7 +1847,7 @@ function Dashboard() {
                       <div className="breakdown-item">
                         <div className="breakdown-label-group">
                           <div className="breakdown-color-dot" style={{ background: "rgba(234, 179, 8, 0.8)" }}></div>
-                          <span className="breakdown-label">Electricity</span>
+                          <span className="breakdown-label">{t("dashboard.electricity")}</span>
                         </div>
                         <div className="breakdown-details">
                           <div className="breakdown-val">{catStats.Electricity.toFixed(1)} kg</div>
@@ -1875,7 +1862,7 @@ function Dashboard() {
                       <div className="breakdown-item">
                         <div className="breakdown-label-group">
                           <div className="breakdown-color-dot" style={{ background: "rgba(249, 115, 22, 0.8)" }}></div>
-                          <span className="breakdown-label">Food Choice</span>
+                          <span className="breakdown-label">{t("dashboard.foodChoice")}</span>
                         </div>
                         <div className="breakdown-details">
                           <div className="breakdown-val">{catStats.Food.toFixed(1)} kg</div>
@@ -1890,7 +1877,7 @@ function Dashboard() {
                       <div className="breakdown-item">
                         <div className="breakdown-label-group">
                           <div className="breakdown-color-dot" style={{ background: "rgba(168, 85, 247, 0.8)" }}></div>
-                          <span className="breakdown-label">Shopping</span>
+                          <span className="breakdown-label">{t("dashboard.shoppingGoods")}</span>
                         </div>
                         <div className="breakdown-details">
                           <div className="breakdown-val">{catStats.Shopping.toFixed(1)} kg</div>
@@ -1908,22 +1895,21 @@ function Dashboard() {
                 {/* Recent Activities Section */}
                 <div className="glass-card table-card">
                   <div className="table-header">
-                    <h3>Recent Activities Log</h3>
+                    <h3>{t("dashboard.recentActivities")}</h3>
                     <button className="table-view-all" onClick={() => setActiveTab("activities")}>
-                      <span>See Full Log</span>
+                      <span>{t("dashboard.seeFullLog")}</span>
                       <FaChevronRight style={{ fontSize: "11px" }} />
                     </button>
                   </div>
-
                   <div className="table-container">
                     <table className="activities-table">
                       <thead>
                       <tr>
-                        <th>Activity Type</th>
-                        <th>Logged Details</th>
-                        <th>Carbon Impact</th>
-                        <th>Date / Time</th>
-                        <th>Actions</th>
+                        <th>{t("dashboard.activityType")}</th>
+                        <th>{t("dashboard.loggedDetails")}</th>
+                        <th>{t("dashboard.carbonImpact")}</th>
+                        <th>{t("dashboard.dateTime")}</th>
+                        <th>{t("dashboard.actions")}</th>
                       </tr>
                       </thead>
                       <tbody>
@@ -2033,13 +2019,15 @@ function Dashboard() {
                     }}
                 >
                   <div style={{ display: "flex", gap: "10px", flexWrap: "wrap" }}>
-                    {["All", "Transport", "Electricity", "Food", "Shopping"].map((cat) => (
+                    {[t("activities.all"), t("activities.transport"), t("activities.electricity"), t("activities.food"), t("activities.shopping")].map((cat, idx) => {
+                      const vals = ["All","Transport","Electricity","Food","Shopping"];
+                      return (
                         <button
                             key={cat}
-                            onClick={() => setCategoryFilter(cat)}
+                            onClick={() => setCategoryFilter(vals[idx])}
                             style={{
-                              background: categoryFilter === cat ? "var(--primary-glow)" : "var(--input-bg)",
-                              color: categoryFilter === cat ? "var(--sidebar-item-active-text)" : "var(--text-primary)",
+                              background: categoryFilter === vals[idx] ? "var(--primary-glow)" : "var(--input-bg)",
+                              color: categoryFilter === vals[idx] ? "var(--sidebar-item-active-text)" : "var(--text-primary)",
                               border: "1px solid var(--input-border)",
                               padding: "8px 18px",
                               borderRadius: "20px",
@@ -2051,13 +2039,14 @@ function Dashboard() {
                         >
                           {cat}
                         </button>
-                    ))}
+                      );
+                    })}
                   </div>
 
                   <div style={{ position: "relative" }}>
                     <input
                         type="text"
-                        placeholder="Search activities..."
+                        placeholder={t("activities.searchPlaceholder")}
                         value={searchQuery}
                         onChange={(e) => setSearchQuery(e.target.value)}
                         style={{
@@ -2079,11 +2068,11 @@ function Dashboard() {
                       <table className="activities-table">
                         <thead>
                         <tr>
-                          <th>Activity Type</th>
-                          <th>Logged Details</th>
-                          <th>Carbon Impact</th>
-                          <th>Date / Time</th>
-                          <th>Actions</th>
+                          <th>{t("activities.activityType")}</th>
+                          <th>{t("activities.loggedDetails")}</th>
+                          <th>{t("activities.carbonImpact")}</th>
+                          <th>{t("activities.dateTime")}</th>
+                          <th>{t("activities.actions")}</th>
                         </tr>
                         </thead>
                         <tbody>
@@ -2193,16 +2182,10 @@ function Dashboard() {
                   ) : (
                       <div style={{ textAlign: "center", padding: "50px 20px" }}>
                         <FaLeaf style={{ fontSize: "50px", color: "rgba(255,255,255,0.15)", marginBottom: "15px" }} />
-                        <h3 style={{ fontSize: "18px", color: "var(--text-muted)" }}>No activities matched your query.</h3>
-                        <button
-                            className="btn-primary"
-                            style={{ marginTop: "20px" }}
-                            onClick={() => {
-                              setSearchQuery("");
-                              setCategoryFilter("All");
-                            }}
-                        >
-                          Reset Filters
+                        <h3 style={{ fontSize: "18px", color: "var(--text-muted)" }}>{t("dashboard.noMatch")}</h3>
+                        <button className="btn-primary" style={{ marginTop: "20px" }}
+                            onClick={() => { setSearchQuery(""); setCategoryFilter("All"); }}>
+                          {t("dashboard.resetFilters")}
                         </button>
                       </div>
                   )}
@@ -2210,448 +2193,205 @@ function Dashboard() {
               </div>
           )}
 
-          {/* Tab 3: Leaderboard & Badges Panel */}
+          {/* ─── COMMUNITY LEADERBOARD — REDESIGNED ─── */}
           {activeTab === "reports" && (
-              <div className="reports-layout" style={{ display: "flex", flexDirection: "column", gap: "30px" }}>
+            <div className="clb-root">
 
-                {/* Top row: Rank Card and Daily Streak Card */}
-                <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(300px, 1fr))", gap: "25px" }}>
+              {/* Page header */}
+              <div className="clb-page-header">
+                <div className="clb-page-title-group">
+                  <h1 className="clb-page-title">
+                    Community <span className="clb-green">Leaderboard</span> 🌿
+                  </h1>
+                  <p className="clb-page-sub">Together we make Earth a better place 💚</p>
+                </div>
+                <div className="clb-page-controls">
+                  <div className="clb-search-wrap">
+                    <span className="clb-search-icon">🔍</span>
+                    <input className="clb-search-input" type="text"
+                      placeholder={t("leaderboard.searchPlaceholder")}
+                      value={search} onChange={e => setSearch(e.target.value)} />
+                  </div>
+                </div>
+              </div>
 
-                  {/* My Rank Card */}
-                  <motion.div
-                      className="glass-card"
-                      style={{ padding: "30px", display: "flex", flexDirection: "column", justifyContent: "space-between", minHeight: "220px", border: "1px solid var(--card-border)" }}
-                      initial={{ opacity: 0, y: 20 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ duration: 0.4 }}
-                  >
-                    <div>
-                      <h3 style={{ fontSize: "16px", fontWeight: "600", color: "var(--text-muted)", marginBottom: "5px", textTransform: "uppercase", letterSpacing: "1px" }}>Your Rank</h3>
-                      <span style={{ fontSize: "56px", fontWeight: "800", color: "var(--primary-glow)", lineHeight: "1" }}>
-                    {myRank > 0 ? `#${myRank}` : "Unranked"}
-                  </span>
-                    </div>
-                    <div style={{ marginTop: "15px" }}>
-                      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "5px" }}>
-                        <span style={{ fontSize: "14px", color: "var(--text-muted)" }}>Total Carbon:</span>
-                        <span style={{ fontSize: "16px", fontWeight: "700", color: "var(--text-primary)" }}>{totalEmissions.toFixed(1)} kg CO₂</span>
-                      </div>
-                      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                        <span style={{ fontSize: "14px", color: "var(--text-muted)" }}>Standing:</span>
-                        <span style={{ fontSize: "14px", fontWeight: "700", color: "var(--primary-glow)", background: "rgba(51, 255, 199, 0.1)", padding: "4px 10px", borderRadius: "20px" }}>
-                      {percentile <= 10 ? "Top 10% 🥇" : percentile <= 25 ? "Top 25% 🥈" : percentile <= 50 ? "Top 50% 🥉" : `Top ${percentile}%`}
-                    </span>
-                      </div>
-                    </div>
-                  </motion.div>
-
-                  {/* Daily Streak Card */}
-                  <motion.div
-                      className="glass-card"
-                      style={{ padding: "30px", display: "flex", flexDirection: "column", justifyContent: "space-between", minHeight: "220px", border: "1px solid var(--card-border)" }}
-                      initial={{ opacity: 0, y: 20 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ duration: 0.4, delay: 0.1 }}
-                  >
-                    <div>
-                      <h3 style={{ fontSize: "16px", fontWeight: "600", color: "var(--text-muted)", marginBottom: "5px", textTransform: "uppercase", letterSpacing: "1px" }}>🔥 Daily Streak</h3>
-                      <span style={{ fontSize: "56px", fontWeight: "800", color: "#F97316", lineHeight: "1" }}>
-                    {streakInfo.ongoingStreak} {streakInfo.ongoingStreak === 1 ? "Day" : "Days"}
-                  </span>
-                    </div>
-
-                    {/* Week indicator list */}
-                    <div style={{ display: "flex", justifyContent: "space-between", gap: "8px", marginTop: "15px" }}>
-                      {["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"].map((dayName, idx) => {
-                        const isDone = streakInfo.weekStatus[idx];
-                        return (
-                            <div
-                                key={dayName}
-                                style={{
-                                  display: "flex",
-                                  flexDirection: "column",
-                                  alignItems: "center",
-                                  gap: "6px",
-                                  flex: 1
-                                }}
-                            >
-                              <span style={{ fontSize: "11px", color: "var(--text-muted)", fontWeight: "600" }}>{dayName}</span>
-                              <div
-                                  style={{
-                                    width: "28px",
-                                    height: "28px",
-                                    borderRadius: "50%",
-                                    background: isDone ? "rgba(51, 255, 199, 0.15)" : "rgba(255, 255, 255, 0.03)",
-                                    border: isDone ? "1px solid var(--primary-glow)" : "1px solid var(--card-border)",
-                                    display: "flex",
-                                    alignItems: "center",
-                                    justifyContent: "center",
-                                    fontSize: "12px",
-                                    color: isDone ? "var(--primary-glow)" : "var(--text-muted)",
-                                    fontWeight: "bold",
-                                    transition: "all 0.3s ease"
-                                  }}
-                              >
-                                {isDone ? "✔" : "•"}
-                              </div>
-                            </div>
-                        );
-                      })}
+              {/* 4 insight cards */}
+              <div className="clb-insight-row">
+                {[
+                  { icon: "🌍", title: "Community Power",  sub: "Every action creates a bigger impact",      color: "#22c55e", bg: "rgba(34,197,94,0.1)"  },
+                  { icon: "🌐", title: "Global Impact",    sub: "Together we're building a greener planet",  color: "#3b82f6", bg: "rgba(59,130,246,0.1)" },
+                  { icon: "💜", title: "Good Vibes",       sub: "Inspire, encourage and grow together",      color: "#a855f7", bg: "rgba(168,85,247,0.1)" },
+                  { icon: "⭐", title: "You Matter",       sub: "Your effort makes our community stronger",  color: "#f59e0b", bg: "rgba(245,158,11,0.1)" },
+                ].map((c, i) => (
+                  <motion.div key={i} className="clb-insight-card"
+                    style={{ "--ic": c.color, "--ic-bg": c.bg }}
+                    initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.4, delay: i * 0.07 }}>
+                    <div className="clb-insight-icon">{c.icon}</div>
+                    <div className="clb-insight-text">
+                      <div className="clb-insight-title">{c.title}</div>
+                      <div className="clb-insight-sub">{c.sub}</div>
                     </div>
                   </motion.div>
+                ))}
+              </div>
 
+              {/* Leaderboard table card */}
+              <div className="clb-table-card">
+                {/* Column headers */}
+                <div className="clb-col-headers">
+                  <div className="clb-ch-rank">RANK</div>
+                  <div className="clb-ch-user">USER</div>
+                  <div className="clb-ch-badge">BADGE</div>
+                  <div className="clb-ch-ecorank">ECO RANK</div>
+                  <div className="clb-ch-points">TOTAL POINTS 🌿</div>
                 </div>
 
-                {/* Leaderboard Card */}
-                <motion.div
-                    className="glass-card"
-                    style={{ padding: "30px", border: "1px solid var(--card-border)" }}
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.4, delay: 0.2 }}
-                >
-                  <h2
-                      style={{
-                        textAlign: "center",
-                        color: "#FFD700",
-                        fontSize: "28px",
-                        fontWeight: "bold",
-                        marginBottom: "25px",
-                        textTransform: "uppercase",
-                        letterSpacing: "2px",
-                      }}
-                  >
-                    🏆 Top 3 Eco Champions 🏆
-                  </h2>
+                {/* Rows */}
+                <AnimatePresence mode="wait">
+                  <motion.div key={search}
+                    initial={{ opacity: 0 }} animate={{ opacity: 1 }}
+                    exit={{ opacity: 0 }} transition={{ duration: 0.2 }}>
+                    {leaderboard
+                      .filter(i => i.name.toLowerCase().includes(search.toLowerCase()))
+                      .map((item, index) => {
+                        const rank = index + 1;
+                        const isMe = item.id === myUserId || item.name === userInfo.fullName;
 
-                  <div
-                      style={{
-                        display: "flex",
-                        flexDirection: "column",
-                        alignItems: "center",
-                        gap: "20px",
-                        marginBottom: "40px",
-                      }}
-                  >
+                        const ECO_RANKS = [
+                          { min:1,  max:1,        label:"Green Guardian",  desc:"Protecting the planet",  color:"#22c55e", icon:"🌿" },
+                          { min:2,  max:3,        label:"Earth Protector", desc:"Making a big impact",    color:"#3b82f6", icon:"🌍" },
+                          { min:4,  max:5,        label:"Nature Lover",    desc:"Spreading good vibes",   color:"#a855f7", icon:"💜" },
+                          { min:6,  max:10,       label:"Eco Warrior",     desc:"Taking real action",     color:"#f59e0b", icon:"⚡" },
+                          { min:11, max:20,       label:"Change Maker",    desc:"Driving the change",     color:"#06b6d4", icon:"✨" },
+                          { min:21, max:40,       label:"Eco Contributor", desc:"Every effort counts",    color:"#84cc16", icon:"🌱" },
+                          { min:41, max:Infinity, label:"Eco Starter",     desc:"Just getting started",   color:"#94a3b8", icon:"🌾" },
+                        ];
+                        const er = ECO_RANKS.find(r => rank >= r.min && rank <= r.max) || ECO_RANKS[ECO_RANKS.length - 1];
 
-                    {/* Rank 1 */}
-                    <div
-                        style={{
-                          width: "320px",
-                          background: "linear-gradient(135deg,#FFD700,#F59E0B)",
-                          color: "#111827",
-                          borderRadius: "22px",
-                          padding: "30px",
-                          textAlign: "center",
-                          boxShadow: "0 12px 25px rgba(255,215,0,0.5)",
-                        }}
-                    >
-                      <h1 style={{ fontSize: "60px" }}>🥇</h1>
-                      <h2>Rank #1</h2>
-                      <p>{topThree[0] ? "Eco Champion" : ""}</p>
-                      <h2>{leaderboard[0]?.name}</h2>
-                      <p>{topThree[0]?.ecoPoints || 0} Eco Points</p>
-                    </div>
+                        const pts = Math.max(0, Math.round((500 - (item.totalEmission || 0)) * 4)) + Math.max(0, (100 - rank) * 20);
+                        const pct = Math.min(100, Math.round((pts / 3000) * 100));
 
-                    <div
-                        style={{
-                          display: "flex",
-                          justifyContent: "center",
-                          gap: "20px",
-                          width: "100%",
-                        }}
-                    >
+                        const AV = ["#22c55e","#3b82f6","#a855f7","#f59e0b","#ec4899","#06b6d4","#84cc16","#f97316"];
+                        const avColor = AV[item.name.charCodeAt(0) % AV.length];
 
-                      {/* Rank 2 */}
-                      <div
-                          style={{
-                            width: "250px",
-                            background: "linear-gradient(135deg,#D1D5DB,#9CA3AF)",
-                            color: "#111827",
-                            borderRadius: "20px",
-                            padding: "25px",
-                            textAlign: "center",
-                            border: "2px solid silver",
-                          }}
-                      >
-                        <h1 style={{ fontSize: "50px" }}>🥈</h1>
-                        <h2>Rank #2</h2>
-                        <p>{topThree[1] ? "Eco Leader" : ""}</p>
-                        <h3>{leaderboard[1]?.name}</h3>
-                        <p>{topThree[1]?.ecoPoints || 0} Eco Points</p>
-                      </div>
+                        const BS = [
+                          { bg:"#FFD700", shadow:"0 0 14px rgba(255,215,0,0.55)",  icon:"👑" },
+                          { bg:"#60a5fa", shadow:"0 0 12px rgba(96,165,250,0.45)", icon:"🌐" },
+                          { bg:"#c084fc", shadow:"0 0 12px rgba(192,132,252,0.4)", icon:"💎" },
+                          { bg:"#4ade80", shadow:"0 0 10px rgba(74,222,128,0.35)", icon:"🛡️" },
+                        ];
+                        const bs = BS[Math.min(rank - 1, BS.length - 1)];
 
-                      {/* Rank 3 */}
-                      <div
-                          style={{
-                            width: "250px",
-                            background: "linear-gradient(135deg,#CD7F32,#8B4513)",
-                            color: "white",
-                            borderRadius: "20px",
-                            padding: "25px",
-                            textAlign: "center",
-                            border: "2px solid #CD7F32",
-                          }}
-                      >
-                        <h1 style={{ fontSize: "50px" }}>🥉</h1>
-                        <h2>Rank #3</h2>
-                        <p>{topThree[2] ? "Eco Warrior" : ""}</p>
-                        <h3>{leaderboard[2]?.name}</h3>
-                        <p>{topThree[2]?.ecoPoints || 0} Eco Points</p>
-                      </div>
-                    </div>   {/* Closes Rank 2 & Rank 3 row */}
+                        return (
+                          <motion.div key={item.id || item.name}
+                            className={`clb-row ${rank === 1 ? "clb-row--rank1" : rank <= 3 ? `clb-row--top${rank}` : ""} ${isMe ? "clb-row--me" : ""}`}
+                            initial={{ opacity: 0, x: -8 }} animate={{ opacity: 1, x: 0 }}
+                            transition={{ duration: 0.25, delay: index * 0.015 }}
+                            whileHover={{ backgroundColor: "rgba(34,197,94,0.04)" }}>
 
-                  </div>   {/* Closes Top 3 Eco Champions section */}
+                            {/* RANK */}
+                            <div className="clb-col-rank">
+                              {rank === 1 ? (
+                                <div className="clb-medal clb-medal--gold"><span>👑</span><span className="clb-medal-num">1</span></div>
+                              ) : rank === 2 ? (
+                                <div className="clb-medal clb-medal--silver"><span>🥈</span><span className="clb-medal-num">2</span></div>
+                              ) : rank === 3 ? (
+                                <div className="clb-medal clb-medal--bronze"><span>🥉</span><span className="clb-medal-num">3</span></div>
+                              ) : (
+                                <div className="clb-rank-num">
+                                  {rank === 4 && <span className="clb-rank-diamond">♦</span>}
+                                  {rank}
+                                </div>
+                              )}
+                            </div>
 
+                            {/* USER */}
+                            <div className="clb-col-user">
+                              <div className="clb-avatar" style={{ background: avColor }}>{item.name.charAt(0).toUpperCase()}</div>
+                              <div className="clb-user-text">
+                                <span className="clb-user-name">{item.name}{isMe && <span className="clb-you-tag"> (You)</span>}</span>
+                                <span className="clb-user-handle">@{item.name.toLowerCase().replace(/[\s-]/g,"_")}</span>
+                                {rank === 1 && <span className="clb-active-badge">🟢 Active Member</span>}
+                              </div>
+                            </div>
 
+                            {/* BADGE */}
+                            <div className="clb-col-badge">
+                              <div className="clb-shield" style={{ "--bs-bg": bs.bg, "--bs-shadow": bs.shadow }}>
+                                <span className="clb-shield-icon">{bs.icon}</span>
+                              </div>
+                            </div>
 
+                            {/* ECO RANK */}
+                            <div className="clb-col-ecorank">
+                              <div className="clb-ecorank-title" style={{ color: er.color }}>{er.icon} {er.label}</div>
+                              <div className="clb-ecorank-desc">{er.desc}</div>
+                            </div>
 
-                  <h3 style={{ fontSize: "18px", fontWeight: "700", marginBottom: "20px", display: "flex", alignItems: "center", gap: "10px" }}>
-                    <span>🏆 Community Leaderboard</span>
-                    {isLeaderboardLoading && <span style={{ fontSize: "12px", color: "var(--text-muted)", fontWeight: "normal" }}>(Updating...)</span>}
-                  </h3>
-                  <input
-                      type="text"
-                      placeholder="Search user..."
-                      value={search}
-                      onChange={(e) => setSearch(e.target.value)}
-                      style={{
-                        width: "100%",
-                        padding: "10px",
-                        margin: "15px 0",
-                        borderRadius: "8px",
-                        border: "1px solid #444",
-                        background: "#1f2937",
-                        color: "white",
-                        outline: "none"
-                      }}
-                  />
+                            {/* TOTAL POINTS */}
+                            <div className="clb-col-points">
+                              <div className="clb-points-top">
+                                <span className="clb-points-val">{pts.toLocaleString()}</span>
+                                <span className="clb-points-leaf">🌿</span>
+                              </div>
+                              <div className="clb-points-bar-track">
+                                <motion.div className="clb-points-bar-fill" style={{ "--er-color": er.color }}
+                                  initial={{ width: 0 }} animate={{ width: `${pct}%` }}
+                                  transition={{ duration: 0.8, delay: index * 0.02 }} />
+                              </div>
+                            </div>
+                          </motion.div>
+                        );
+                      })}
+                    {leaderboard.length === 0 && (
+                      <div className="clb-empty">No users yet. Log an activity to appear here!</div>
+                    )}
+                  </motion.div>
+                </AnimatePresence>
 
-                  <div style={{ overflowX: "auto" }}>
-                    <table style={{ width: "100%", borderCollapse: "collapse", textAlign: "left" }}>
-                      <thead>
-                      <tr style={{ borderBottom: "1px solid var(--card-border)", color: "var(--text-muted)", fontSize: "13px" }}>
-                        <th style={{ padding: "12px 16px", fontWeight: "600" }}>Rank</th>
-                        <th style={{ padding: "12px 16px", fontWeight: "600" }}>User</th>
-                        <th style={{ padding: "12px 16px", fontWeight: "600", textAlign: "center" }}>Badge</th>
-                        <th style={{ padding: "12px 16px", fontWeight: "600" }}>Eco Rank</th>
-                        <th style={{ padding: "12px 16px", fontWeight: "600", textAlign: "right" }}>Total CO₂</th>
-                      </tr>
-                      </thead>
-                      <tbody>
-                      {leaderboard
-                          .filter(item =>
-                              item.name.toLowerCase().includes(search.toLowerCase())
-                          )
-                          .map((item, index) => {
-                            const rank = index + 1;
-                            let badge = "🌱";
+                {/* Footer */}
+                <div className="clb-footer">
+                  <span className="clb-footer-count">
+                    Showing 1 to {leaderboard.filter(i => i.name.toLowerCase().includes(search.toLowerCase())).length} of {leaderboard.length} contributors 🌿
+                  </span>
+                  <span className="clb-footer-live">⚡ Updated in real-time</span>
+                </div>
+              </div>
 
-                            if (rank === 1) badge = "🥇";
-                            else if (rank === 2) badge = "🥈";
-                            else if (rank === 3) badge = "🥉";
-
-                            let ecoRank = "Beginner";
-
-                            if (rank === 1) ecoRank = "Eco Champion";
-                            else if (rank <= 3) ecoRank = "Eco Leader";
-                            else if (rank <= 10) ecoRank = "Eco Warrior";
-                            const isMe = item.id === myUserId || item.name === userInfo.fullName;
-                            const displayName = item.name;
-
-
-                            return (
-                                <tr
-                                    key={item.id || item.name}
-                                    style={{
-                                      borderBottom: "1px solid rgba(255, 255, 255, 0.03)",
-                                      background:
-                                          rank === 1
-                                              ? "rgba(255, 215, 0, 0.10)"
-                                              : rank === 2
-                                                  ? "rgba(192, 192, 192, 0.10)"
-                                                  : rank === 3
-                                                      ? "rgba(205, 127, 50, 0.10)"
-                                                      : isMe
-                                                          ? "rgba(51, 255, 199, 0.05)"
-                                                          : "transparent",
-
-                                      borderLeft:
-                                          rank === 1
-                                              ? "4px solid gold"
-                                              : rank === 2
-                                                  ? "4px solid silver"
-                                                  : rank === 3
-                                                      ? "4px solid #CD7F32"
-                                                      : isMe
-                                                          ? "3px solid var(--primary-glow)"
-                                                          : "3px solid transparent",
-                                      transition: "all 0.3s ease"
-                                    }}
-                                >
-                                  <td style={{ padding: "16px", fontWeight: "700", fontSize: "16px", color: "var(--text-primary)" }}>
-                                    <span>{rank}</span>
-                                  </td>
-                                  <td style={{ padding: "16px" }}>
-                                    <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
-                                      <div
-                                          style={{
-                                            width: "32px",
-                                            height: "32px",
-                                            borderRadius: "50%",
-                                            background: isMe
-                                                ? "var(--primary-glow)"
-                                                : "linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%)",
-                                            color: isMe ? "#050816" : "#ffffff",
-                                            display: "flex",
-                                            alignItems: "center",
-                                            justifyContent: "center",
-                                            fontWeight: "bold",
-                                            fontSize: "14px"
-                                          }}
-                                      >
-                                        {displayName.charAt(0).toUpperCase()}
-                                      </div>
-
-                                      <span
-                                          style={{
-                                            fontWeight: isMe ? "700" : "500",
-                                            color: isMe ? "var(--primary-glow)" : "var(--text-primary)"
-                                          }}
-                                      >
-  {displayName}
-                                        {isMe && (
-                                            <span
-                                                style={{
-                                                  fontSize: "11px",
-                                                  color: "var(--text-muted)",
-                                                  fontWeight: "normal"
-                                                }}
-                                            >
-      {" "} (You)
-    </span>
-                                        )}
-</span>
-                                    </div>
-                                  </td>
-
-                                  <td style={{ padding: "16px", textAlign: "center" }}>
-                                    {badge}
-                                  </td>
-
-                                  <td style={{ padding: "16px" }}>
-                                    {ecoRank}
-                                  </td>
-
-                                  <td style={{ padding: "16px", textAlign: "right", fontWeight: "700", color: "var(--text-primary)" }}>
-                                    {item.totalEmission ? item.totalEmission.toFixed(1) : "0.0"} kg
-                                  </td>
-                                </tr>
-                            );
-                          })}
-                      {leaderboard.length === 0 && (
-                          <tr>
-                            <td colSpan="3" style={{ padding: "30px", textAlign: "center", color: "var(--text-muted)" }}>
-                              No users on the leaderboard yet. Log an activity to get started!
-                            </td>
-                          </tr>
-                      )}
-                      </tbody>
-                    </table>
+              {/* Personal stats row */}
+              <div className="clb-personal-row">
+                <motion.div className="clb-personal-card"
+                  initial={{ opacity:0, y:16 }} animate={{ opacity:1, y:0 }} transition={{ duration:0.4, delay:0.3 }}>
+                  <div className="clb-pc-label">Your Community Rank</div>
+                  <div className="clb-pc-rank">{myRank > 0 ? `#${myRank}` : "—"}</div>
+                  <div className="clb-pc-sub">{percentile <= 10 ? "Top 10% 🥇" : percentile <= 25 ? "Top 25% 🥈" : percentile <= 50 ? "Top 50% 🥉" : `Top ${percentile}%`}</div>
+                </motion.div>
+                <motion.div className="clb-personal-card"
+                  initial={{ opacity:0, y:16 }} animate={{ opacity:1, y:0 }} transition={{ duration:0.4, delay:0.4 }}>
+                  <div className="clb-pc-label">🔥 Daily Streak</div>
+                  <div className="clb-pc-rank" style={{ color:"#fb923c" }}>
+                    {streakInfo.ongoingStreak}<span style={{ fontSize:"18px", marginLeft:"4px" }}>days</span>
+                  </div>
+                  <div className="clb-week-dots">
+                    {["M","T","W","T","F","S","S"].map((d, i) => (
+                      <div key={i} className={`clb-dot ${streakInfo.weekStatus[i] ? "clb-dot--done" : ""}`} title={d} />
+                    ))}
                   </div>
                 </motion.div>
-
-                {/* Badges Section */}
-                <motion.div
-                    className="glass-card"
-                    style={{ padding: "30px", border: "1px solid var(--card-border)" }}
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.4, delay: 0.3 }}
-                >
-                  <h3 style={{ fontSize: "18px", fontWeight: "700", marginBottom: "20px" }}>🏆 Earned Eco Badges</h3>
-
-                  <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(260px, 1fr))", gap: "20px" }}>
-                    {userBadges.map((badge) => (
-                        <motion.div
-                            key={badge.id}
-                            className="glass-card"
-                            style={{
-                              padding: "20px",
-                              background: badge.unlocked
-                                  ? "rgba(255, 255, 255, 0.04)"
-                                  : "rgba(0, 0, 0, 0.2)",
-                              border: badge.unlocked
-                                  ? "1px solid rgba(51, 255, 199, 0.2)"
-                                  : "1px solid rgba(255, 255, 255, 0.02)",
-                              opacity: badge.unlocked ? 1 : 0.55,
-                              display: "flex",
-                              flexDirection: "column",
-                              alignItems: "center",
-                              textAlign: "center",
-                              gap: "10px",
-                              position: "relative",
-                              transition: "all 0.3s ease"
-                            }}
-                            whileHover={{
-                              scale: 1.02,
-                              borderColor: badge.unlocked ? "var(--primary-glow)" : "rgba(255, 255, 255, 0.08)",
-                              boxShadow: badge.unlocked ? "0 0 20px rgba(51, 255, 199, 0.15)" : "none"
-                            }}
-                        >
-
-                          {/* Badge Icon */}
-                          <div
-                              style={{
-                                width: "60px",
-                                height: "60px",
-                                borderRadius: "50%",
-                                background: badge.unlocked
-                                    ? "rgba(51, 255, 199, 0.1)"
-                                    : "rgba(255, 255, 255, 0.05)",
-                                display: "flex",
-                                alignItems: "center",
-                                justifyContent: "center",
-                                fontSize: "30px",
-                                border: badge.unlocked
-                                    ? "1px solid var(--primary-glow)"
-                                    : "1px solid rgba(255, 255, 255, 0.05)",
-                                filter: badge.unlocked ? "none" : "grayscale(100%)"
-                              }}
-                          >
-                            {badge.icon}
-                          </div>
-
-                          <div style={{ flexGrow: 1 }}>
-                            <h4 style={{ fontSize: "16px", fontWeight: "700", color: badge.unlocked ? "var(--text-primary)" : "var(--text-muted)", marginBottom: "4px" }}>
-                              {badge.name}
-                            </h4>
-                            <p style={{ fontSize: "12px", color: "var(--text-muted)", lineHeight: "1.4" }}>
-                              {badge.desc}
-                            </p>
-                          </div>
-
-                          {/* Unlocked status tag */}
-                          <span
-                              style={{
-                                fontSize: "11px",
-                                fontWeight: "700",
-                                padding: "3px 8px",
-                                borderRadius: "12px",
-                                textTransform: "uppercase",
-                                letterSpacing: "0.5px",
-                                color: badge.unlocked ? "var(--primary-glow)" : "var(--text-muted)",
-                                background: badge.unlocked ? "rgba(51, 255, 199, 0.08)" : "rgba(255, 255, 255, 0.02)"
-                              }}
-                          >
-                      {badge.unlocked ? "Unlocked" : "Locked"}
-                    </span>
-
-                        </motion.div>
+                <motion.div className="clb-personal-card"
+                  initial={{ opacity:0, y:16 }} animate={{ opacity:1, y:0 }} transition={{ duration:0.4, delay:0.5 }}>
+                  <div className="clb-pc-label">Eco Badges Earned</div>
+                  <div className="clb-pc-rank">{unlockedCount}<span style={{ fontSize:"18px" }}> / {userBadges.length}</span></div>
+                  <div className="clb-badges-mini">
+                    {userBadges.slice(0, 5).map(b => (
+                      <span key={b.id} style={{ opacity: b.unlocked ? 1 : 0.3, fontSize:"18px" }}>{b.icon}</span>
                     ))}
                   </div>
                 </motion.div>
               </div>
+
+            </div>
           )}
           {activeTab === "reportCenter" && (
               <ReportCenter leaderboard={leaderboard} />
@@ -2997,20 +2737,17 @@ function Dashboard() {
                 <button className="modal-close-btn" onClick={() => setIsModalOpen(false)}>
                   <FaTimes />
                 </button>
-                <h3>{editingId ? "Edit Carbon Activity" : "Log Carbon Activity"}</h3>
-                <p>Input parameters to calculate and append this carbon-emitting activity to your stream.</p>
+                <h3>{editingId ? t("modal.editActivity") : t("modal.logActivity")}</h3>
+                <p>{t("modal.modalSub")}</p>
 
                 <form onSubmit={handleAddActivity}>
                   <div className="form-group">
-                    <label>Carbon Category</label>
-                    <select
-                        value={activityForm.type}
-                        onChange={(e) => setActivityForm({ ...activityForm, type: e.target.value })}
-                    >
-                      <option value="Transport">🚗 Transport</option>
-                      <option value="Electricity">⚡ Electricity</option>
-                      <option value="Food">🍔 Food choices</option>
-                      <option value="Shopping">🛍️ Shopping & Apparel</option>
+                    <label>{t("modal.categoryLabel")}</label>
+                    <select value={activityForm.type} onChange={(e) => setActivityForm({ ...activityForm, type: e.target.value })}>
+                      <option value="Transport">{t("modal.transport")}</option>
+                      <option value="Electricity">{t("modal.electricity")}</option>
+                      <option value="Food">{t("modal.food")}</option>
+                      <option value="Shopping">{t("modal.shopping")}</option>
                     </select>
                   </div>
 
@@ -3180,7 +2917,7 @@ function Dashboard() {
                         justifyContent: "space-between",
                       }}
                   >
-                    <span style={{ fontSize: "13px", fontWeight: "600", color: "#cbd5e1" }}>Calculated Footprint:</span>
+                    <span style={{ fontSize: "13px", fontWeight: "600", color: "#cbd5e1" }}>{t("modal.calculatedFootprint")}</span>
                     <span style={{ fontSize: "18px", fontWeight: "800", color: "var(--primary-glow)" }}>
                   {calculateCarbon()} kg CO₂e
                 </span>
@@ -3188,10 +2925,10 @@ function Dashboard() {
 
                   <div className="modal-actions">
                     <button type="button" className="btn-secondary" onClick={() => setIsModalOpen(false)}>
-                      Cancel
+                      {t("modal.cancel")}
                     </button>
                     <button type="submit" className="btn-primary">
-                      {editingId ? "Update Activity" : "Append to Logs"}
+                      {editingId ? t("modal.updateActivity") : t("modal.appendLogs")}
                     </button>
                   </div>
                 </form>

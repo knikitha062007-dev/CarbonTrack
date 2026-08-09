@@ -7,6 +7,7 @@ import com.carbontracker.CarbonTracker.entity.Activity;
 import com.carbontracker.CarbonTracker.entity.User;
 import com.carbontracker.CarbonTracker.repository.ActivityRepository;
 import com.carbontracker.CarbonTracker.repository.GoalRepository;
+import com.carbontracker.CarbonTracker.dto.ComparisonResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.cache.annotation.Cacheable;
@@ -21,6 +22,7 @@ public class DashboardService {
 
     private final ActivityRepository activityRepository;
     private final GoalRepository goalRepository;
+    private final ComparisonService comparisonService;
     //@Cacheable(value = "dashboard", key = "#user.id")
     public DashboardResponse getDashboard(User user) {
         System.out.println("******** FETCHING FROM DATABASE ********");
@@ -42,9 +44,12 @@ public class DashboardService {
                 .orElse(500.0);
 
         double percentage = goal == 0 ? 0 : (total / goal) * 100;
-        Double dailyGoal = user.getCo2Goal();
-        Double todayEmission = activityRepository.getTodayEmission(user);
+        Double dailyGoal = user.getCo2Goal() != null ? user.getCo2Goal() : 500.0;
 
+        Double todayEmission = activityRepository.getTodayEmission(user);
+        if (todayEmission == null) {
+            todayEmission = 0.0;
+        }
         Double remainingToday = Math.max(0, dailyGoal - todayEmission);
 
         Double dailyProgress =
@@ -66,6 +71,13 @@ public class DashboardService {
         System.out.println("Remaining = " + remainingToday);
         System.out.println("Progress = " + dailyProgress);
         System.out.println("Status = " + dailyStatus);
+        System.out.println("Total = " + total);
+        System.out.println("Transport = " + transport);
+        System.out.println("Electricity = " + electricity);
+        System.out.println("Food = " + food);
+        System.out.println("Shopping = " + shopping);
+        System.out.println("Activities = " + activities);
+        ComparisonResponse comparison = comparisonService.getComparison(user);
         return DashboardResponse.builder()
                 .totalEmission(total)
                 .transportEmission(transport)
@@ -81,6 +93,11 @@ public class DashboardService {
                 .remainingToday(remainingToday)
                 .dailyProgress(dailyProgress)
                 .dailyStatus(dailyStatus)
+
+                .dailyComparison(comparison.getToday())
+                .weeklyComparison(comparison.getThisWeek())
+                .monthlyComparison(comparison.getThisMonth())
+
                 .build();
     }
     public List<WeeklyEmissionResponse> getWeeklyEmission(User user) {

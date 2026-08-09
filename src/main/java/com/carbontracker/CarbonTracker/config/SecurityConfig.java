@@ -44,7 +44,12 @@ public class SecurityConfig {
                                 "/users/count",
                                 "/users/activity-count",
                                 "/users/landing-stats",
-                                "/dashboard/weekly"
+                                "/dashboard",
+                                "/dashboard/weekly",
+                                "/activities/**",
+                                "/reports/**",
+                                "/certificate",
+                                "/comparison"
                         ).permitAll()
                         .anyRequest().authenticated()
                 )

@@ -18,6 +18,9 @@ import api from "../services/api";
 import PostCard from "../components/PostCard";
 import CreatePostModal from "../components/CreatePostModal";
 import CommunitySidebar from "../components/CommunitySidebar";
+import LightThemeBG from "../components/LightThemeBG";
+import DarkThemeBG from "../components/DarkThemeBG";
+import GoogleTranslate from "../components/GoogleTranslate";
 import "../styles/Community.css";
 import "../styles/dashboard.css"; // inherit layout variables
 
@@ -186,6 +189,10 @@ function Community() {
 
   return (
     <div className="community-container">
+      {/* Light Theme 3D Eco Background */}
+      <LightThemeBG theme={theme} />
+      {/* Dark Theme Floating Leaves */}
+      <DarkThemeBG theme={theme} />
       {/* Background ambient glowing shapes */}
       <div className="community-glow glow-left" />
       <div className="community-glow glow-right" />
@@ -248,6 +255,7 @@ function Community() {
           <header className="community-header">
             <h1>GreenHub Community</h1>
             <div className="community-actions">
+              <GoogleTranslate theme={theme} />
               <div className="search-box-wrapper">
                 <FaSearch />
                 <input

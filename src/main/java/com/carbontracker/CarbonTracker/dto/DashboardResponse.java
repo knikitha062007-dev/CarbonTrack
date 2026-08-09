@@ -24,4 +24,7 @@ public class DashboardResponse implements Serializable {
     private Double remainingToday;
     private Double dailyProgress;
     private String dailyStatus;
+    private double dailyComparison;
+    private double weeklyComparison;
+    private double monthlyComparison;
 }

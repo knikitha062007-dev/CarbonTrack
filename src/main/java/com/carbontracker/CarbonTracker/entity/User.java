@@ -39,6 +39,10 @@ public class User implements UserDetails {
     @Column(name = "co2_goal")
     private Double co2Goal;
 
+    @Column(name = "show_name")
+    @Builder.Default
+    private Boolean showNameOnLeaderboard = false;
+
     @Column(name = "created_at", nullable = false)
     private LocalDateTime createdAt;
 

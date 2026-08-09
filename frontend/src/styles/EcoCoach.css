@@ -98,7 +98,8 @@
    ------------------------------------------------------------- */
 .eco-navigation {
   display: flex;
-  justify-content: flex-start;
+  justify-content: space-between;
+  align-items: center;
   align-items: center;
 }
 
@@ -1122,3 +1123,20 @@
     padding: 16px;
   }
 }
+
+/* ── LightThemeBG compatibility ──────────────────────────── */
+.eco-dashboard-theme {
+  position: relative;
+  isolation: isolate;
+}
+.eco-wrapper {
+  position: relative;
+  z-index: 1;
+}
+.ambient-glow {
+  z-index: 0;
+}
+
+/* ── DarkThemeBG z-index stack ───────────────────────────── */
+/* eco-dashboard-theme already has isolation:isolate */
+/* eco-wrapper already has z-index:1 */

@@ -27,7 +27,13 @@ public class LeaderboardService {
             if (user != null) {
                 userIdsWithActivities.add(user.getId());
                 double roundedEmission = totalEmission != null ? Math.round(totalEmission * 10.0) / 10.0 : 0.0;
-                leaderboard.add(new LeaderboardResponse(user.getId(), user.getFullName(), roundedEmission));
+                leaderboard.add(new LeaderboardResponse(
+                        user.getId(),
+                        Boolean.TRUE.equals(user.getShowNameOnLeaderboard())
+                                ? user.getFullName()
+                                : "ECO-" + String.format("%04d", user.getId()),
+                        roundedEmission
+                ));
             }
         }
 
@@ -35,7 +41,13 @@ public class LeaderboardService {
         List<User> allUsers = userRepository.findAll();
         for (User user : allUsers) {
             if (!userIdsWithActivities.contains(user.getId())) {
-                leaderboard.add(new LeaderboardResponse(user.getId(), user.getFullName(), 0.0));
+                leaderboard.add(new LeaderboardResponse(
+                        user.getId(),
+                        Boolean.TRUE.equals(user.getShowNameOnLeaderboard())
+                                ? user.getFullName()
+                                : "ECO-" + String.format("%04d", user.getId()),
+                        0.0
+                ));
             }
         }
 

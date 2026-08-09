@@ -1,6 +1,7 @@
 package com.carbontracker.CarbonTracker.service;
 
 import com.carbontracker.CarbonTracker.entity.User;
+import com.carbontracker.CarbonTracker.repository.GoalRepository;
 import com.carbontracker.CarbonTracker.repository.UserRepository;
 import com.carbontracker.CarbonTracker.repository.ActivityRepository;
 import org.junit.jupiter.api.BeforeEach;
@@ -24,13 +25,21 @@ class UserServiceTest {
     @Mock
     private ActivityRepository activityRepository;
 
+    @Mock
+    private GoalRepository goalRepository;
+
     private PasswordEncoder passwordEncoder;
     private UserService userService;
 
     @BeforeEach
     void setUp() {
         passwordEncoder = new BCryptPasswordEncoder();
-        userService = new UserService(userRepository, passwordEncoder, activityRepository);
+        userService = new UserService(
+                userRepository,
+                passwordEncoder,
+                activityRepository,
+                goalRepository
+        );
     }
 
     @Test

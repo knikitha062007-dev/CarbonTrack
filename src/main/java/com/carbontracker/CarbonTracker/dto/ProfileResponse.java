@@ -16,6 +16,7 @@ public class ProfileResponse {
     private String preferredUnit;
 
     private Boolean goalVisibility;
+    private Boolean showNameOnLeaderboard;
 
     private Double co2Goal;
 }

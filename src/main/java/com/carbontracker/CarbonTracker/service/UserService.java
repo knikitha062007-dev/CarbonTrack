@@ -51,6 +51,7 @@ public class UserService {
                 dbUser.getEmail(),
                 dbUser.getPreferredUnit(),
                 dbUser.getGoalVisibility(),
+                dbUser.getShowNameOnLeaderboard(),
                 dbUser.getCo2Goal()
         );
     }
@@ -63,6 +64,7 @@ public class UserService {
         dbuser.setEmail(request.getEmail());
         dbuser.setPreferredUnit(request.getPreferredUnit());
         dbuser.setGoalVisibility(request.getGoalVisibility());
+        dbuser.setShowNameOnLeaderboard(request.getShowNameOnLeaderboard());
         dbuser.setCo2Goal(request.getCo2Goal());
 
         User updatedUser = userRepository.save(dbuser);
@@ -73,10 +75,11 @@ public class UserService {
                 updatedUser.getEmail(),
                 updatedUser.getPreferredUnit(),
                 updatedUser.getGoalVisibility(),
+                updatedUser.getShowNameOnLeaderboard(),
                 updatedUser.getCo2Goal()
         );
     }
-    @Cacheable(value = "userCount")
+    //@Cacheable(value = "userCount")
     public Long getUserCount() {
         System.out.println("Fetching user count from PostgreSQL...");
         return userRepository.count();

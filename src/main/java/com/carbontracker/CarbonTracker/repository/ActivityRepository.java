@@ -57,4 +57,28 @@ WHERE a.user = :user
 AND CAST(a.createdAt AS date) = CURRENT_DATE
 """)
     Double getTodayEmission(@Param("user") User user);
+    @Query("SELECT COALESCE(SUM(a.emission),0) FROM Activity a WHERE a.user=:user AND a.activityType='TRANSPORT' AND a.createdAt BETWEEN :fromDate AND :toDate")
+    Double getTransportEmissionBetween(@Param("user") User user,
+                                       @Param("fromDate") LocalDateTime fromDate,
+                                       @Param("toDate") LocalDateTime toDate);
+
+    @Query("SELECT COALESCE(SUM(a.emission),0) FROM Activity a WHERE a.user=:user AND a.activityType='ELECTRICITY' AND a.createdAt BETWEEN :fromDate AND :toDate")
+    Double getElectricityEmissionBetween(@Param("user") User user,
+                                         @Param("fromDate") LocalDateTime fromDate,
+                                         @Param("toDate") LocalDateTime toDate);
+
+    @Query("SELECT COALESCE(SUM(a.emission),0) FROM Activity a WHERE a.user=:user AND a.activityType='FOOD' AND a.createdAt BETWEEN :fromDate AND :toDate")
+    Double getFoodEmissionBetween(@Param("user") User user,
+                                  @Param("fromDate") LocalDateTime fromDate,
+                                  @Param("toDate") LocalDateTime toDate);
+
+    @Query("SELECT COALESCE(SUM(a.emission),0) FROM Activity a WHERE a.user=:user AND a.activityType='SHOPPING' AND a.createdAt BETWEEN :fromDate AND :toDate")
+    Double getShoppingEmissionBetween(@Param("user") User user,
+                                      @Param("fromDate") LocalDateTime fromDate,
+                                      @Param("toDate") LocalDateTime toDate);
+
+    @Query("SELECT COALESCE(SUM(a.emission),0) FROM Activity a WHERE a.user=:user AND a.createdAt BETWEEN :fromDate AND :toDate")
+    Double getTotalEmissionBetween(@Param("user") User user,
+                                   @Param("fromDate") LocalDateTime fromDate,
+                                   @Param("toDate") LocalDateTime toDate);
 }

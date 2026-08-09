@@ -20,6 +20,9 @@ import {
   FaHeart 
 } from "react-icons/fa";
 import api from "../services/api";
+import LightThemeBG from "../components/LightThemeBG";
+import DarkThemeBG from "../components/DarkThemeBG";
+import GoogleTranslate from "../components/GoogleTranslate";
 import "../styles/EcoCoach.css";
 
 // -------------------------------------------------------------
@@ -252,6 +255,10 @@ useEffect(() => {
 
   return (
     <div className="eco-dashboard-theme">
+      {/* Light Theme 3D Eco Background */}
+      <LightThemeBG theme={localStorage.getItem("theme") || "dark"} />
+      {/* Dark Theme Floating Leaves */}
+      <DarkThemeBG theme={localStorage.getItem("theme") || "dark"} />
       {/* Background ambient glowing shapes */}
       <div className="ambient-glow glow-1"></div>
       <div className="ambient-glow glow-2"></div>
@@ -264,6 +271,7 @@ useEffect(() => {
             <FaArrowLeft className="btn-icon" />
             <span>Dashboard</span>
           </button>
+          <GoogleTranslate theme={localStorage.getItem("theme") || "dark"} />
         </div>
 
         {/* Hero Section */}
